@@ -23,6 +23,5 @@ dist-ssr
 *.sw?
 
 uploads/
-assets/
 
 tmp-neversettle.html

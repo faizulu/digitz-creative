@@ -57,6 +57,7 @@ function viewBoxFor(file: string): string {
 
 /**
  * Never Settle brush SVG — live stroke draw, cycles words without layout jump.
+ * Falls back to plain label text if brush assets are missing (e.g. deploy without SVGs).
  */
 export function HandwriteText({
   className = '',
@@ -69,11 +70,13 @@ export function HandwriteText({
   const [index, setIndex] = useState(0)
   const [reduceMotion, setReduceMotion] = useState(false)
 
-  const list = useMemo(
-    () => words.filter((w) => Boolean(w.file && loadSvg(w.file))),
-    [words],
-  )
+  const list = useMemo(() => {
+    const withSvg = words.filter((w) => Boolean(w.file && loadSvg(w.file)))
+    return withSvg.length > 0 ? withSvg : [...words]
+  }, [words])
+
   const current = list[index % Math.max(list.length, 1)]
+  const hasBrush = Boolean(current?.file && loadSvg(current.file))
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -94,7 +97,10 @@ export function HandwriteText({
 
   useEffect(() => {
     const host = hostRef.current
-    if (!host || !current) return
+    if (!host || !current || !hasBrush) {
+      if (host) host.innerHTML = ''
+      return
+    }
 
     const raw = loadSvg(current.file)
     if (!raw) return
@@ -144,13 +150,23 @@ export function HandwriteText({
       host.innerHTML = ''
       host.classList.remove('is-in', 'is-out')
     }
-  }, [current, delay, durationMs, holdMs, reduceMotion])
+  }, [current, delay, durationMs, holdMs, reduceMotion, hasBrush])
+
+  if (!current) return null
+
+  if (!hasBrush) {
+    return (
+      <span className={`hw-brush hw-brush--fallback ${className}`} aria-label={current.label}>
+        {current.label}
+      </span>
+    )
+  }
 
   return (
     <span
       ref={hostRef}
       className={`hw-brush ${className}`}
-      aria-label={current?.label ?? ''}
+      aria-label={current.label}
     />
   )
 }
