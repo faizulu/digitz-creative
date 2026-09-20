@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" fill="none" role="img" aria-labelledby="logoTitle logoDesc">
+  <title id="logoTitle">Digitz Creative</title>
+  <desc id="logoDesc">Rocket mark with Digitz Creative wordmark and tagline Elevating Brands Digitally</desc>
+  <defs>
+    <linearGradient id="rocket" x1="96" y1="28" x2="40" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5C242"/>
+      <stop offset="0.32" stop-color="#7CDE4A"/>
+      <stop offset="0.72" stop-color="#00C2F0"/>
+      <stop offset="1" stop-color="#1A86E0"/>
+    </linearGradient>
+    <linearGradient id="trail" x1="90" y1="90" x2="18" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00C2F0"/>
+      <stop offset="0.55" stop-color="#F5A623"/>
+      <stop offset="1" stop-color="#F5C242"/>
+    </linearGradient>
+    <linearGradient id="digitz" x1="176" y1="86" x2="430" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1486D4"/>
+      <stop offset="1" stop-color="#2BB4F0"/>
+    </linearGradient>
+    <linearGradient id="creative" x1="430" y1="86" x2="700" y2="86" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BC43A"/>
+      <stop offset="1" stop-color="#8BE05A"/>
+    </linearGradient>
+  </defs>
+  <path d="M86 108c-28 22-52 46-58 72" stroke="url(#trail)" stroke-width="11" stroke-linecap="round"/>
+  <rect x="20" y="132" width="11" height="11" rx="2" fill="#F5C242"/>
+  <rect x="36" y="146" width="8" height="8" rx="1.5" fill="#F59E0B"/>
+  <rect x="14" y="154" width="9" height="9" rx="1.5" fill="#38BDF8"/>
+  <rect x="48" y="162" width="7" height="7" rx="1.5" fill="#84CC16"/>
+  <rect x="28" y="170" width="6" height="6" rx="1" fill="#00C2F0"/>
+  <g transform="translate(108 92) rotate(-38)">
+    <path d="M0-52c18 24 22 48 10 78L0 40l-10-14C-22-4-18-28 0-52z" fill="url(#rocket)"/>
+    <circle cy="-10" r="8" fill="#050B18"/>
+    <path d="M-10 30l-22 18 20-8z" fill="#1A9FE0"/>
+    <path d="M10 30l22 18-20-8z" fill="#1A9FE0"/>
+  </g>
+  <text x="176" y="102" font-family="Syne, Arial Black, Helvetica, sans-serif" font-size="58" font-weight="800" fill="url(#digitz)">Digitz</text>
+  <text x="368" y="102" font-family="Syne, Arial Black, Helvetica, sans-serif" font-size="58" font-weight="800" fill="url(#creative)">Creative</text>
+  <text x="178" y="142" font-family="DM Sans, Helvetica, sans-serif" font-size="22" font-weight="500" fill="#5A5A5A">Elevating Brands Digitally</text>
+  <rect x="478" y="134" width="86" height="3" rx="1.5" fill="#7CDE4A"/>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 96" fill="none" role="img" aria-label="Digitz Creative">
+  <defs>
+    <linearGradient id="rocketGrad" x1="48" y1="8" x2="18" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5C242"/>
+      <stop offset="0.3" stop-color="#7CDE4A"/>
+      <stop offset="0.7" stop-color="#00C2F0"/>
+      <stop offset="1" stop-color="#1A86E0"/>
+    </linearGradient>
+    <linearGradient id="trailGrad" x1="52" y1="48" x2="8" y2="90" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00C2F0"/>
+      <stop offset="0.55" stop-color="#F5A623"/>
+      <stop offset="1" stop-color="#F5C242"/>
+    </linearGradient>
+    <linearGradient id="digitzGrad" x1="108" y1="56" x2="250" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1486D4"/>
+      <stop offset="1" stop-color="#2BB4F0"/>
+    </linearGradient>
+    <linearGradient id="creativeGrad" x1="250" y1="56" x2="410" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BC43A"/>
+      <stop offset="1" stop-color="#8BE05A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- trail -->
+  <path d="M46 58c-16 12-30 26-34 40" stroke="url(#trailGrad)" stroke-width="7" stroke-linecap="round"/>
+  <rect x="10" y="70" width="7" height="7" rx="1.2" fill="#F5C242"/>
+  <rect x="20" y="78" width="5.5" height="5.5" rx="1" fill="#F59E0B"/>
+  <rect x="6" y="82" width="5.5" height="5.5" rx="1" fill="#38BDF8"/>
+  <rect x="28" y="86" width="4.5" height="4.5" rx="1" fill="#84CC16"/>
+
+  <!-- rocket -->
+  <g transform="translate(58 50) rotate(-38)">
+    <path d="M0-30c11 14 13 28 6 46L0 24l-6-8C-13-2-11-16 0-30z" fill="url(#rocketGrad)"/>
+    <circle cy="-6" r="4.8" fill="#0B1220"/>
+    <path d="M-6 18l-13 11 12-5z" fill="#1A9FE0"/>
+    <path d="M6 18l13 11-12-5z" fill="#1A9FE0"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="102" y="62" font-family="Inter, Arial Black, Helvetica, sans-serif" font-size="36" font-weight="800" letter-spacing="-0.02em" fill="url(#digitzGrad)">Digitz</text>
+  <text x="228" y="62" font-family="Inter, Arial Black, Helvetica, sans-serif" font-size="36" font-weight="800" letter-spacing="-0.02em" fill="url(#creativeGrad)">Creative</text>
+</svg>
