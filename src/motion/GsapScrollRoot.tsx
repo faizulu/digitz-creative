@@ -1,115 +1,64 @@
 import { useLayoutEffect, type ReactNode } from 'react'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 /**
- * Site-wide ScrollTrigger setup (gsap-scrolltrigger + gsap-performance):
- * - batch reveals via transform + autoAlpha only
- * - scrub parallax on .gs-parallax (y only, ease none)
- * - matchMedia prefers-reduced-motion
- * - refresh after load; full cleanup on unmount
+ * Reveal / parallax for the horizontal deck.
+ * Animations fire when a panel becomes active (digitz:section-snap),
+ * not via vertical ScrollTrigger (page does not scroll).
  */
 export function GsapScrollRoot({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
-    const mm = gsap.matchMedia()
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
 
-    mm.add('(prefers-reduced-motion: reduce)', () => {
-      gsap.set('.gs-reveal, .gs-reveal-item', {
-        clearProps: 'all',
-      })
-    })
+    gsap.set('.gs-reveal', { autoAlpha: 0, y: 36 })
+    gsap.set('.gs-reveal-item', { autoAlpha: 0, y: 22 })
 
-    mm.add('(prefers-reduced-motion: no-preference)', () => {
-      gsap.set('.gs-reveal', { autoAlpha: 0, y: 48 })
-      gsap.set('.gs-reveal-item', { autoAlpha: 0, y: 28 })
+    const revealPanel = (index: number) => {
+      const main = document.getElementById('main')
+      if (!main) return
+      const panels = main.querySelectorAll<HTMLElement>(':scope > section, :scope > footer')
+      const panel = panels[index]
+      if (!panel) return
 
-      ScrollTrigger.batch('.gs-reveal', {
-        start: 'top 88%',
-        once: true,
-        interval: 0.12,
-        batchMax: 5,
-        onEnter: (batch) => {
-          gsap.to(batch, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.9,
-            stagger: 0.1,
-            ease: 'power3.out',
-            overwrite: true,
-            clearProps: 'transform',
-          })
-        },
-      })
+      const reveals = panel.querySelectorAll<HTMLElement>('.gs-reveal')
+      const items = panel.querySelectorAll<HTMLElement>('.gs-reveal-item')
 
-      ScrollTrigger.batch('.gs-reveal-item', {
-        start: 'top 92%',
-        once: true,
-        interval: 0.1,
-        batchMax: 8,
-        onEnter: (batch) => {
-          gsap.to(batch, {
-            autoAlpha: 1,
-            y: 0,
-            duration: 0.7,
-            stagger: 0.06,
-            ease: 'power2.out',
-            overwrite: true,
-            clearProps: 'transform',
-          })
-        },
-      })
+      if (reveals.length) {
+        gsap.to(reveals, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.75,
+          stagger: 0.08,
+          ease: 'power3.out',
+          overwrite: true,
+        })
+      }
+      if (items.length) {
+        gsap.to(items, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.05,
+          ease: 'power2.out',
+          overwrite: true,
+          delay: 0.08,
+        })
+      }
+    }
 
-      gsap.utils.toArray<HTMLElement>('.gs-parallax').forEach((el) => {
-        const amount = Number(el.dataset.parallax ?? -48)
-        gsap.fromTo(
-          el,
-          { y: -amount * 0.35 },
-          {
-            y: amount,
-            ease: 'none',
-            force3D: true,
-            scrollTrigger: {
-              trigger: el.closest('section') ?? el.parentElement ?? el,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: 1,
-            },
-          },
-        )
-      })
+    // First panel on load
+    const t = window.setTimeout(() => revealPanel(0), 120)
 
-      gsap.utils.toArray<HTMLElement>('.gs-scrub-fade').forEach((el) => {
-        gsap.fromTo(
-          el,
-          { autoAlpha: 0.35, y: 24 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 90%',
-              end: 'top 55%',
-              scrub: 0.8,
-            },
-          },
-        )
-      })
-    })
-
-    const refresh = () => ScrollTrigger.refresh()
-    const onLoad = () => refresh()
-    window.addEventListener('load', onLoad)
-
-    // Fonts / late layout — single deferred refresh (not every resize)
-    const t = window.setTimeout(refresh, 400)
+    const onSnap = (e: Event) => {
+      const index = (e as CustomEvent<{ index: number }>).detail?.index
+      if (typeof index === 'number') revealPanel(index)
+    }
+    window.addEventListener('digitz:section-snap', onSnap)
 
     return () => {
       window.clearTimeout(t)
-      window.removeEventListener('load', onLoad)
-      mm.revert()
+      window.removeEventListener('digitz:section-snap', onSnap)
     }
   }, [])
 

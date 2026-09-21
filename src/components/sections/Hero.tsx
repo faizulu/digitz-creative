@@ -51,17 +51,17 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="hero-liquid relative w-full overflow-hidden pt-24 pb-10 sm:pt-28 sm:pb-12"
+      className="hero-liquid relative w-full overflow-hidden"
     >
-      <Container className="relative z-10">
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-6 xl:gap-10">
+      <Container className="hero-liquid-shell relative z-10">
+        <div className="hero-liquid-main grid items-center gap-6 lg:grid-cols-12 lg:gap-5 xl:gap-8">
           <div className="lg:col-span-6 xl:col-span-6">
             <Reveal>
-              <p className="mb-6 block font-mono text-[11px] font-bold tracking-[0.2em] text-slate-500 uppercase">
+              <p className="hero-liquid-eyebrow mb-3 block font-mono text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase sm:mb-4 sm:text-[11px]">
                 {hero.eyebrow}
               </p>
 
-              <h1 className="hero-headline max-w-5xl text-[clamp(2.75rem,8.2vw,6.25rem)] leading-[0.88] font-bold tracking-[-0.045em] text-ink">
+              <h1 className="hero-headline max-w-5xl text-[clamp(2.1rem,5.8vw,4.75rem)] leading-[0.9] font-bold tracking-[-0.045em] text-ink">
                 <span className="hero-headline-row">
                   <span>{hero.headlineBefore}</span>
                   <HandwriteText
@@ -71,48 +71,46 @@ export function Hero() {
                     holdMs={1600}
                   />
                 </span>
-                <span className="mt-1 block">{hero.headlineAfter}</span>
+                <span className="mt-0.5 block">{hero.headlineAfter}</span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-ink/60 sm:text-base">
+              <p className="hero-liquid-support mt-3 max-w-xl text-[13px] leading-relaxed text-ink/60 sm:mt-4 sm:text-[15px]">
                 {hero.support}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="hero-liquid-tags mt-4 flex flex-wrap items-center gap-2 sm:mt-5 sm:gap-3">
                 {hero.rotating.map((label, i) => (
                   <span
                     key={label}
-                    className={`rounded-full border px-4 py-2 text-xs font-semibold shadow-sm transition-all duration-500 ${
-                      i === rotateIndex
-                        ? 'border-ink bg-ink text-white shadow-md'
-                        : 'border-white/60 bg-white/40 text-slate-800 backdrop-blur-sm'
-                    }`}
+                    className={`hero-tag ${i === rotateIndex ? 'is-active' : ''}`}
                   >
                     {label}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="hero-liquid-ctas mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:items-center sm:gap-3">
                 <a
                   href={whatsappUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary px-5 py-3 text-sm"
+                  className="btn-liquid-primary group"
                 >
                   {hero.primaryCta}
-                  <ArrowRight size={15} color="#ffffff" aria-hidden />
+                  <span className="btn-liquid-mark" aria-hidden>
+                    <ArrowRight size={14} strokeWidth={2} />
+                  </span>
                 </a>
-                <a href="#work" className="btn-secondary px-5 py-3 text-sm">
+                <a href="#work" className="btn-liquid-secondary group">
                   {hero.secondaryCta}
-                  <ArrowUpRight size={15} aria-hidden />
+                  <ArrowUpRight size={15} strokeWidth={1.85} aria-hidden />
                 </a>
               </div>
             </Reveal>
           </div>
 
           {/* Right — image 1 collage */}
-          <div className="relative lg:col-span-6 xl:col-span-6">
+          <div className="relative min-h-0 lg:col-span-6 xl:col-span-6">
             <Reveal delay={80}>
               <div className="hero-collage">
                 {/* Color blobs — vivid like image 1 */}
@@ -183,7 +181,7 @@ export function Hero() {
                 <article className="glass-card hero-collage-card hero-collage-card--main">
                   <Stars size={15} />
                   <p className="hero-collage-quote">“{quote.quote}”</p>
-                  <div className="mt-5 flex items-end justify-between gap-3 border-t border-white/30 pt-4">
+                  <div className="mt-4 flex items-end justify-between gap-3 border-t border-white/30 pt-3">
                     <div>
                       <p className="text-sm font-bold text-slate-900">{quote.attribution}</p>
                       <p className="text-xs text-slate-500">{quote.company}</p>
@@ -211,8 +209,8 @@ export function Hero() {
         </div>
 
         <Reveal delay={120}>
-          <div className="mt-10 border-t border-slate-200/70 pt-6 sm:mt-12">
-            <p className="mb-4 text-[11px] font-semibold tracking-[0.22em] text-ink/45 uppercase">
+          <div className="hero-trusted border-t border-white/40">
+            <p className="mb-3 text-[10px] font-semibold tracking-[0.22em] text-ink/45 uppercase sm:text-[11px]">
               {hero.trustedLabel}
             </p>
             <div className="relative overflow-hidden">
@@ -220,7 +218,7 @@ export function Hero() {
                 {[...trustedNames, ...trustedNames].map((name, i) => (
                   <span
                     key={`${name}-${i}`}
-                    className="text-[15px] font-semibold tracking-tight text-ink/55"
+                    className="text-[14px] font-semibold tracking-tight text-ink/55 sm:text-[15px]"
                   >
                     {name}
                   </span>

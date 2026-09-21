@@ -1,154 +1,139 @@
-import { useCallback, useEffect, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { testimonials, whatsappUrl } from '../../data/content'
-import { Container } from '../ui/Container'
-import { Reveal } from '../ui/Reveal'
+import { useEffect, useState } from 'react'
+import { Star } from 'lucide-react'
+import { heroRating, testimonials } from '../../data/content'
 
 const items = testimonials.items
 
-function useVisibleCount() {
-  const [count, setCount] = useState(1)
+function Stars() {
+  return (
+    <div className="testimonial-stars" aria-hidden>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} size={15} fill="currentColor" strokeWidth={0} />
+      ))}
+    </div>
+  )
+}
 
-  useEffect(() => {
-    const update = () => {
-      if (window.matchMedia('(min-width: 1024px)').matches) setCount(3)
-      else if (window.matchMedia('(min-width: 768px)').matches) setCount(2)
-      else setCount(1)
-    }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
-
-  return count
+function Avatar({ image }: { image: string }) {
+  return (
+    <img
+      src={image}
+      alt=""
+      className="testimonial-avatar-img"
+      width={38}
+      height={38}
+      loading="lazy"
+      decoding="async"
+    />
+  )
 }
 
 export function Testimonials() {
-  const reduceMotion = useReducedMotion()
-  const visible = useVisibleCount()
-  const maxIndex = Math.max(0, items.length - visible)
-  const [index, setIndex] = useState(0)
+  const [active, setActive] = useState(0)
 
   useEffect(() => {
-    setIndex((i) => Math.min(i, maxIndex))
-  }, [maxIndex])
-
-  const goTo = useCallback(
-    (next: number) => {
-      setIndex(Math.max(0, Math.min(next, maxIndex)))
-    },
-    [maxIndex],
-  )
-
-  useEffect(() => {
-    if (reduceMotion || maxIndex === 0) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
     const id = window.setInterval(() => {
-      setIndex((i) => (i >= maxIndex ? 0 : i + 1))
+      setActive((i) => (i + 1) % items.length)
     }, 5200)
     return () => window.clearInterval(id)
-  }, [maxIndex, reduceMotion])
+  }, [])
+
+  const main = items[active]
+  const left = items[(active + 1) % items.length]
+  const top = items[(active + 2) % items.length]
+  const right = items[(active + 3) % items.length]
 
   return (
-    <section id="voice" className="testimonials-section relative overflow-hidden py-20 sm:py-24">
-      <div className="testimonials-ambient" aria-hidden>
-        <span className="testimonials-blob testimonials-blob--a" />
-        <span className="testimonials-blob testimonials-blob--b" />
+    <section
+      id="voice"
+      className="testimonial-section"
+      aria-labelledby="voice-heading"
+    >
+      <div className="testimonial-header">
+        <p className="testimonial-eyebrow">CLIENT VOICE</p>
+        <h2 id="voice-heading">
+          References on request.{' '}
+          <span>Quotes when verified.</span>
+        </h2>
       </div>
 
-      <Container className="relative z-10">
-        <Reveal>
-          <header className="mx-auto mb-12 max-w-2xl text-center md:mb-14">
-            <p className="mb-3 text-[12px] font-medium tracking-[0.08em] text-slate-400">
-              <span className="text-slate-500">13</span>
-              <span className="mx-2 text-slate-300">/</span>
-              Testimonial
-            </p>
-            <h2 className="section-hero-title text-[clamp(1.65rem,3.4vw,2.5rem)] leading-[1.15] font-bold tracking-[-0.03em] text-slate-900">
-              References on request.{' '}
-              <span className="gradient-text">Quotes when verified.</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-slate-500">
-              {testimonials.intro}
-            </p>
-          </header>
-        </Reveal>
-
-        <div className="testimonials-viewport">
-          <motion.div
-            className="testimonials-track"
-            animate={{ x: `${(-index * 100) / items.length}%` }}
-            transition={
-              reduceMotion
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 260, damping: 32 }
-            }
-            style={{ width: `${(items.length * 100) / visible}%` }}
-          >
-            {items.map((item) => (
-              <article
-                key={item.handle}
-                className="testimonials-slide"
-                style={{ width: `${100 / items.length}%` }}
-              >
-                <div className="testimonial-glass">
-                  <div className="testimonial-glass-body">
-                    <span className="testimonial-quote-mark" aria-hidden>
-                      “
-                    </span>
-                    <p className="testimonial-quote">{item.quote}</p>
-                    <p className="testimonial-demo-label">Demo placeholder</p>
-                  </div>
-
-                  <div className="testimonial-notch">
-                    <img
-                      src={item.image}
-                      alt=""
-                      className="testimonial-avatar"
-                      width={44}
-                      height={44}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <div className="testimonial-person">
-                      <p className="testimonial-name">{item.name}</p>
-                      <p className="testimonial-handle">{item.handle}</p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </motion.div>
-        </div>
-
-        <div className="testimonials-dots" role="tablist" aria-label="Testimonials">
-          {Array.from({ length: maxIndex + 1 }, (_, i) => (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={`Show testimonials group ${i + 1}`}
-              className={`testimonials-dot ${i === index ? 'is-active' : ''}`}
-              onClick={() => goTo(i)}
-            />
-          ))}
-        </div>
-
-        <Reveal>
-          <div className="mt-10 flex justify-center">
-            <a
-              href={whatsappUrl(
-                'Hi Digitz Creative — I’d like to request client references for a potential project.',
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex rounded-full border border-slate-200/80 bg-white/50 px-5 py-3 text-[11px] font-bold tracking-[0.18em] text-slate-800 uppercase backdrop-blur-md transition-colors hover:bg-white/80"
-            >
-              Request references
-            </a>
+      <div className="testimonial-composition">
+        {/* BACK LEFT */}
+        <article className="testimonial-card testimonial-card-left" aria-hidden>
+          <Stars />
+          <p>{left.quote}</p>
+          <div className="testimonial-user">
+            <Avatar image={left.image} />
+            <div>
+              <strong>{left.name}</strong>
+              <small>{left.handle}</small>
+            </div>
           </div>
-        </Reveal>
-      </Container>
+        </article>
+
+        {/* BACK TOP */}
+        <article className="testimonial-card testimonial-card-top" aria-hidden>
+          <Stars />
+          <p>{top.quote}</p>
+          <div className="testimonial-user">
+            <Avatar image={top.image} />
+            <div>
+              <strong>{top.name}</strong>
+              <small>{top.handle}</small>
+            </div>
+          </div>
+        </article>
+
+        {/* BACK RIGHT */}
+        <article className="testimonial-card testimonial-card-right" aria-hidden>
+          <Stars />
+          <p>{right.quote}</p>
+          <div className="testimonial-user">
+            <Avatar image={right.image} />
+            <div>
+              <strong>{right.name}</strong>
+              <small>{right.handle}</small>
+            </div>
+          </div>
+        </article>
+
+        {/* MAIN */}
+        <article className="testimonial-card testimonial-card-main" key={main.handle}>
+          <Stars />
+          <blockquote>{main.quote}</blockquote>
+          <div className="testimonial-divider" aria-hidden />
+          <div className="testimonial-main-footer">
+            <div className="testimonial-main-user">
+              <strong>{main.name}</strong>
+              <span>{main.handle}</span>
+            </div>
+            <div className="testimonial-dots" role="tablist" aria-label="Quotes">
+              {items.map((item, i) => (
+                <button
+                  key={item.handle}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === active}
+                  aria-label={`Quote ${i + 1}`}
+                  className={i === active ? 'active' : undefined}
+                  onClick={() => setActive(i)}
+                />
+              ))}
+            </div>
+          </div>
+        </article>
+
+        {/* RATING */}
+        <div
+          className="testimonial-rating"
+          aria-label={`${heroRating.score} out of 10 client rating`}
+        >
+          <strong>{heroRating.score}</strong>
+          <span>{heroRating.label}</span>
+        </div>
+      </div>
     </section>
   )
 }

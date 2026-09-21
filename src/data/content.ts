@@ -809,14 +809,18 @@ export const founder = {
   firstName: 'Faizal',
   lastName: 'Ahamed',
   legal: 'Faizal Ahamed',
+  badge: 'Founder',
+  meetLabel: 'Meet our founder',
+  meetIntro: 'Visionary leader building brands, products and digital experiences.',
   role: 'Founder · Food & lifestyle creator',
+  roleShort: 'Food & lifestyle creator',
   brandLine: 'Digitz Creative',
   place: 'Trichy, Tamil Nadu',
   quote:
-    "We don't just create content. We create business impact — from the creator's chair.",
-  body: 'Digitz Creative is led from the creator’s chair. Faizal Ahamed — Foodiee Faizall — builds content for his own audience and for client brands, which is why the work is judged on stop-scroll craft and on business outcomes, not vanity metrics alone.',
+    "We don't just create content. We create business impact - from the creator's chair.",
+  body: "Digitz Creative is led from the creator's chair. Faizal Ahamed (Foodiee Faizall) builds content for his own audience and for client brands, which is why the work is judged on stop-scroll craft and on business outcomes, not vanity metrics alone.",
   image: '/founder/faizal.png',
-  imageAlt: 'Faizal Ahamed — Foodiee Faizall, founder of Digitz Creative',
+  imageAlt: 'Faizal Ahamed (Foodiee Faizall), founder of Digitz Creative',
   points: [
     'Creator + agency in one practice',
     'Based in Trichy, working with Tamil Nadu businesses',
@@ -911,8 +915,8 @@ export const gallery = [
 
 export const testimonials = {
   intro:
-    'We publish client voice only with permission. Until verified testimonials are supplied, this section holds the brief’s quote structure as a placeholder — and we will share references on request.',
-  /** Demo cards for layout only — swap for verified quotes + real portraits with permission */
+    'We publish client voice only with permission. Until verified testimonials are supplied, this section holds the brief quote structure as a placeholder, and we will share references on request.',
+  /** Demo cards for layout only - swap for verified quotes + real portraits with permission */
   items: [
     {
       quote:
@@ -924,13 +928,13 @@ export const testimonials = {
     {
       quote:
         "They're super communicative and easy to work with. Digitz hit the ground running with the work.",
-      name: 'Nina Volkov',
+      name: 'Kaylynn Botosh',
       handle: '@kaylynnbotosh',
       image: 'https://i.pravatar.cc/120?img=32',
     },
     {
       quote:
-        "The brand messaging doesn't just read — you feel it. Content that actually moves the business.",
+        "The brand messaging doesn't just read - you feel it. Content that actually moves the business.",
       name: 'Robert Fox',
       handle: '@robertfox',
       image: 'https://i.pravatar.cc/120?img=33',

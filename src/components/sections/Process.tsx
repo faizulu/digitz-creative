@@ -1,108 +1,137 @@
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
+import gsap from 'gsap'
 import { ArrowUpRight } from 'lucide-react'
 import { process, whatsappUrl } from '../../data/content'
-import { Container } from '../ui/Container'
 
 const accents = [
-  { ink: '#8B2E2E', soft: 'rgba(139, 46, 46, 0.1)' },
-  { ink: '#B86A1A', soft: 'rgba(184, 106, 26, 0.1)' },
-  { ink: '#9A7B1C', soft: 'rgba(154, 123, 28, 0.12)' },
-  { ink: '#4F7A2E', soft: 'rgba(79, 122, 46, 0.12)' },
-  { ink: '#2E5F7A', soft: 'rgba(46, 95, 122, 0.12)' },
-  { ink: '#1578B8', soft: 'rgba(21, 120, 184, 0.12)' },
+  { ink: '#C45C4A', soft: 'rgba(196, 92, 74, 0.18)' },
+  { ink: '#D4893A', soft: 'rgba(212, 137, 58, 0.18)' },
+  { ink: '#C9A227', soft: 'rgba(201, 162, 39, 0.18)' },
+  { ink: '#58b832', soft: 'rgba(88, 184, 50, 0.18)' },
+  { ink: '#2E8BB8', soft: 'rgba(46, 139, 184, 0.18)' },
+  { ink: '#1578b8', soft: 'rgba(21, 120, 184, 0.2)' },
 ] as const
 
 export function Process() {
+  const rootRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced || !rootRef.current) return
+
+    const play = () => {
+      gsap.fromTo(
+        '.process-deck-tile',
+        { autoAlpha: 0, y: 18, scale: 0.97 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.5,
+          stagger: { each: 0.05, from: 'start' },
+          ease: 'power3.out',
+          overwrite: true,
+        },
+      )
+    }
+
+    const ctx = gsap.context(() => {
+      play()
+    }, rootRef)
+
+    const onSnap = (e: Event) => {
+      const index = (e as CustomEvent<{ index: number }>).detail?.index
+      const main = document.getElementById('main')
+      if (!main || typeof index !== 'number') return
+      const panels = main.querySelectorAll(':scope > section, :scope > footer')
+      if (panels[index] !== rootRef.current) return
+      play()
+    }
+    window.addEventListener('digitz:section-snap', onSnap)
+
+    return () => {
+      window.removeEventListener('digitz:section-snap', onSnap)
+      ctx.revert()
+    }
+  }, [])
+
   return (
     <section
       id="process"
+      ref={rootRef}
       aria-labelledby="process-heading"
-      className="process-vanguard relative overflow-hidden py-16 sm:py-20 md:py-24"
+      className="process-deck relative overflow-hidden"
     >
-      <div className="process-vanguard-grain" aria-hidden />
-      <div
-        className="process-vanguard-orb process-vanguard-orb--a gs-parallax"
-        data-parallax="-44"
-        aria-hidden
-      />
-      <div
-        className="process-vanguard-orb process-vanguard-orb--b gs-parallax"
-        data-parallax="36"
-        aria-hidden
-      />
+      <div className="process-deck-glow" aria-hidden />
 
-      <Container className="relative z-10 w-full px-4 md:px-6">
-        <div className="process-rail">
-          <header className="process-rail-intro gs-reveal">
-            <div>
-              <span className="mb-6 inline-flex rounded-full border border-[#1A1816]/[0.08] bg-[#1A1816]/[0.03] px-3 py-1 font-mono text-[10px] font-medium tracking-[0.2em] text-[#5C564E] uppercase">
-                04 — Signature process
-              </span>
-              <h2
-                id="process-heading"
-                className="process-vanguard-title max-w-[12ch] text-[clamp(2.2rem,4.5vw,3.75rem)] leading-[0.98] tracking-[-0.04em] text-[#1A1816]"
-              >
-                Discover to grow —{' '}
-                <em className="process-vanguard-serif">a single thread.</em>
+      <div className="process-deck-shell relative z-10">
+        <div className="process-deck-frame">
+          <header className="process-deck-head">
+            <div className="process-deck-head-copy">
+              <p className="process-deck-eyebrow">Signature process</p>
+              <h2 id="process-heading" className="process-deck-title">
+                Discover to grow{' '}
+                <em className="process-deck-title-em">a single thread.</em>
               </h2>
-              <p className="mt-6 max-w-md text-[15px] leading-relaxed text-[#6B655C] sm:text-[16px]">
-                Six stages. No theatre. Each step exists to turn a business
-                problem into a published, measurable signal.
+              <p className="process-deck-body">
+                Six stages. No theatre. Each step turns a business problem into a
+                published, measurable signal.
               </p>
             </div>
 
             <a
               href={whatsappUrl(
-                'Hi Digitz Creative — I’d like to walk through your process.',
+                "Hi Digitz Creative - I'd like to walk through your process.",
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="group process-vanguard-cta mt-8 inline-flex w-fit items-center gap-3 rounded-full bg-[#1A1816] py-2 pr-2 pl-6 text-[13px] font-semibold text-[#FDFBF7] transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-[#2A2622] active:scale-[0.98] md:mt-0"
+              className="process-deck-cta group"
             >
               Talk process
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
-                <ArrowUpRight size={15} strokeWidth={1.5} aria-hidden />
+              <span className="process-deck-cta-mark" aria-hidden>
+                <ArrowUpRight size={14} strokeWidth={2} />
               </span>
             </a>
           </header>
 
-          <div className="process-rail-cards">
+          <div className="process-deck-bento process-uv-cards" role="list">
             {process.map((step, i) => {
               const accent = accents[i]
               return (
                 <article
                   key={step.title}
-                  className="process-strip gs-reveal-item"
+                  role="listitem"
+                  className={`process-uv-card process-deck-tile process-deck-tile--${i + 1}`}
                   style={
                     {
-                      '--ps-ink': accent.ink,
-                      '--ps-soft': accent.soft,
+                      '--pd-ink': accent.ink,
+                      '--pd-soft': accent.soft,
+                      '--pd-glow': `${accent.ink}4b`,
                     } as CSSProperties
                   }
                 >
-                  <span className="process-strip-spine" aria-hidden />
-                  <figure className="process-strip-media">
-                    <img
-                      src={step.image}
-                      alt={step.imageAlt}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </figure>
-                  <div className="process-strip-body">
-                    <div className="process-strip-top">
-                      <span className="process-strip-index">{step.index}</span>
-                      <span className="process-strip-name">{step.title}</span>
-                    </div>
-                    <h3 className="process-strip-title">{step.headline}</h3>
-                    <p className="process-strip-text">{step.body}</p>
+                  <div className="process-deck-tile-top">
+                    <figure className="process-deck-tile-media">
+                      <img
+                        src={step.image}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </figure>
+                    <p className="process-deck-tile-label">
+                      <span className="process-deck-tile-index">{step.index}</span>
+                      <span className="process-deck-tile-name">{step.title}</span>
+                    </p>
                   </div>
+                  <p className="process-deck-tile-title">{step.headline}</p>
+                  <p className="process-deck-tile-text">{step.body}</p>
                 </article>
               )
             })}
           </div>
         </div>
-      </Container>
+      </div>
     </section>
   )
 }

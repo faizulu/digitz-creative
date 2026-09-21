@@ -29,7 +29,7 @@ const Sparkle = ({ className = '' }: { className?: string }) => (
 
 export function Gallery() {
   return (
-    <section id="gallery" className="gallery-bento-section relative overflow-hidden py-20 sm:py-24">
+    <section id="gallery" className="gallery-bento-section relative overflow-hidden">
       <div className="gallery-bento-ambient" aria-hidden>
         <span className="gallery-blob gallery-blob--a" />
         <span className="gallery-blob gallery-blob--b" />

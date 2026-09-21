@@ -34,7 +34,7 @@ export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="ft-site" aria-labelledby="footer-brand">
+    <footer id="site-footer" className="ft-site" aria-labelledby="footer-brand">
       <div className="ft-shell">
         <div className="ft-grid">
           <div className="ft-brand">

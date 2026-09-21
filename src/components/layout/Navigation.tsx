@@ -47,10 +47,12 @@ export function Navigation() {
   const sheetId = useId()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const onSnap = (e: Event) => {
+      const index = (e as CustomEvent<{ index: number }>).detail?.index
+      setScrolled(typeof index === 'number' ? index > 0 : false)
+    }
+    window.addEventListener('digitz:section-snap', onSnap)
+    return () => window.removeEventListener('digitz:section-snap', onSnap)
   }, [])
 
   useEffect(() => {
@@ -175,7 +177,7 @@ export function Navigation() {
 
                 <button
                   type="button"
-                  className={`nv-burger lg:hidden ${open ? 'is-open' : ''}`}
+                  className={`nv-burger ${open ? 'is-open' : ''}`}
                   aria-expanded={open}
                   aria-controls={sheetId}
                   aria-label={open ? 'Close menu' : 'Open menu'}
@@ -255,13 +257,13 @@ export function Navigation() {
           <>
             <button
               type="button"
-              className="nv-scrim lg:hidden"
+              className="nv-scrim"
               aria-label="Close menu"
               onClick={closeSheet}
             />
             <nav
               id={sheetId}
-              className="nv-sheet lg:hidden"
+              className="nv-sheet"
               aria-label="Site"
             >
               <div className="nv-sheet-shell">
