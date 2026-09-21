@@ -1,164 +1,190 @@
-import { Container } from '../ui/Container'
-import { Reveal } from '../ui/Reveal'
-import { SectionHeader } from '../ui/SectionHeader'
-import { gallery } from '../../data/content'
+import { useMemo, useState } from 'react'
+import { ArrowUpRight, Plus } from 'lucide-react'
+import { gallery, galleryFilters } from '../../data/content'
+
+type FilterId = (typeof galleryFilters)[number]['id']
+type GalleryId = (typeof gallery)[number]['id']
 
 const byId = Object.fromEntries(gallery.map((item) => [item.id, item])) as Record<
-  (typeof gallery)[number]['id'],
+  GalleryId,
   (typeof gallery)[number]
 >
 
-const reels = byId.reels
-const branding = byId.branding
-const ads = byId.ads
-const campaigns = byId.campaigns
-const social = byId.social
-
-const Sparkle = ({ className = '' }: { className?: string }) => (
-  <svg
-    className={className}
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    aria-hidden
-  >
-    <path d="M12 2.2 13.6 9.4 20.8 11 13.6 12.6 12 19.8 10.4 12.6 3.2 11 10.4 9.4 12 2.2Z" />
-  </svg>
-)
-
+/**
+ * Section 12 — Work gallery
+ * Uses the site-wide iridescent liquid-glass field (same as Clients)
+ * with centered frosted work cards.
+ */
 export function Gallery() {
+  const [filter, setFilter] = useState<FilterId>('all')
+
+  const visible = useMemo(() => {
+    if (filter === 'all') return new Set(gallery.map((g) => g.id))
+    return new Set([filter as GalleryId])
+  }, [filter])
+
+  const on = (id: GalleryId) => visible.has(id)
+
   return (
-    <section id="gallery" className="gallery-bento-section relative overflow-hidden">
-      <div className="gallery-bento-ambient" aria-hidden>
-        <span className="gallery-blob gallery-blob--a" />
-        <span className="gallery-blob gallery-blob--b" />
-        <span className="gallery-blob gallery-blob--c" />
+    <section
+      id="gallery"
+      className="work-gallery relative flex w-full overflow-hidden"
+      aria-labelledby="gallery-heading"
+    >
+      {/* Soft atmosphere only — site fluted glass stays visible underneath */}
+      <div className="work-gallery-atmosphere" aria-hidden>
+        <span className="clients-blob clients-blob--mint" />
+        <span className="clients-blob clients-blob--cyan" />
+        <span className="clients-blob clients-blob--champagne" />
+        <span className="clients-blob clients-blob--lavender" />
+        <span className="clients-blob clients-blob--peach" />
       </div>
 
-      <Container className="relative z-10">
-        <SectionHeader
-          index="12"
-          eyebrow="Work gallery"
-          title={
-            <>
-              Reels. Branding. Ads.{' '}
-              <span className="gradient-text">Campaigns. Social.</span>
-            </>
-          }
-          kicker="Visual categories from the brief. Panels are styled placeholders until selected reel covers and campaign stills are licensed for the site."
-        />
+      <div className="work-gallery-shell relative z-10">
+        <header className="work-gallery-head">
+          <p className="work-gallery-tag">12 | Work gallery</p>
+          <h2 id="gallery-heading" className="work-gallery-title">
+            Reels. Branding. Ads.{' '}
+            <span>Campaigns. Social.</span>
+          </h2>
 
-        <div className="gallery-bento">
-          {/* 1 — Reels (tall left) */}
-          <Reveal className="gallery-cell gallery-cell--reels">
-            <article className="gallery-glass gallery-glass--blue">
-              <div className="gallery-glass-copy">
-                <h3 className="gallery-glass-title">{reels.title}</h3>
-                <p className="gallery-glass-note">{reels.note}</p>
+          <div className="work-gallery-filters" role="tablist" aria-label="Gallery filters">
+            {galleryFilters.map((chip) => (
+              <button
+                key={chip.id}
+                type="button"
+                role="tab"
+                aria-selected={filter === chip.id}
+                className={`work-filter-chip${filter === chip.id ? ' is-active' : ''}`}
+                onClick={() => setFilter(chip.id)}
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        </header>
+
+        <div className={`work-gallery-grid${filter === 'all' ? '' : ' is-filtered'}`}>
+          <article
+            className={`work-card work-card--reels${on('reels') ? ' is-on' : ''}`}
+            data-category="reels"
+          >
+            <span className="work-card-plus" aria-hidden>
+              <Plus size={13} strokeWidth={2.4} />
+            </span>
+            <p className="work-card-cat">{byId.reels.title}</p>
+            <h3 className="work-card-title">
+              {byId.reels.note}{' '}
+              <a href={byId.reels.href} className="work-card-link">
+                Project link
+              </a>
+            </h3>
+            <div className="work-card-stage">
+              <div className="work-phone">
+                <img src="/process/03-create.png" alt="" loading="lazy" />
               </div>
+            </div>
+            <a href={byId.reels.href} className="work-card-cta">
+              {byId.reels.cta}
+              <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden />
+            </a>
+          </article>
 
-              <div className="gallery-phone" aria-hidden>
-                <div className="gallery-phone-frame">
-                  <img
-                    src="/process/03-create.png"
-                    alt=""
-                    className="gallery-phone-img"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className="gallery-phone-chrome">
-                    <span />
-                    <span />
-                  </div>
-                  <p className="gallery-phone-label">{reels.title}</p>
-                </div>
+          <article
+            className={`work-card work-card--branding${on('branding') ? ' is-on' : ''}`}
+            data-category="branding"
+          >
+            <span className="work-card-plus" aria-hidden>
+              <Plus size={13} strokeWidth={2.4} />
+            </span>
+            <p className="work-card-cat">{byId.branding.title}</p>
+            <h3 className="work-card-title">{byId.branding.note}</h3>
+            <div className="work-brand-mock" aria-hidden>
+              <div className="work-brand-tile work-brand-tile--dark">DC</div>
+              <div className="work-brand-tile work-brand-tile--light">Digitz</div>
+            </div>
+            <a href={byId.branding.href} className="work-card-cta">
+              {byId.branding.cta}
+              <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden />
+            </a>
+          </article>
+
+          <article
+            className={`work-card work-card--campaigns${on('campaigns') ? ' is-on' : ''}`}
+            data-category="campaigns"
+          >
+            <span className="work-card-plus" aria-hidden>
+              <Plus size={13} strokeWidth={2.4} />
+            </span>
+            <p className="work-card-cat">{byId.campaigns.title}</p>
+            <h3 className="work-card-title">{byId.campaigns.note}</h3>
+            <div className="work-logo-grid" aria-hidden>
+              <span className="work-logo-cell tone-ink">CS</span>
+              <span className="work-logo-cell tone-blue">BB</span>
+              <span className="work-logo-cell tone-sand">FF</span>
+              <span className="work-logo-cell tone-mint">AR</span>
+            </div>
+            <a href={byId.campaigns.href} className="work-card-cta">
+              {byId.campaigns.cta}
+              <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden />
+            </a>
+          </article>
+
+          <article
+            className={`work-card work-card--ads${on('ads') ? ' is-on' : ''}`}
+            data-category="ads"
+          >
+            <span className="work-card-plus" aria-hidden>
+              <Plus size={13} strokeWidth={2.4} />
+            </span>
+            <p className="work-card-cat">{byId.ads.title}</p>
+            <h3 className="work-card-title">{byId.ads.note}</h3>
+            <div className="work-ads-mock" aria-hidden>
+              <div className="work-ads-serp">
+                <span className="work-ads-url">digitzcreative.com</span>
+                <strong>Grow your local brand online</strong>
+                <p>Reels, ads, and always-on social for Trichy businesses.</p>
               </div>
-            </article>
-          </Reveal>
+              <div className="work-ads-banner">Meta · Reach +42%</div>
+            </div>
+            <a href={byId.ads.href} className="work-card-cta">
+              {byId.ads.cta}
+              <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden />
+            </a>
+          </article>
 
-          {/* 2 — Branding (mid) */}
-          <Reveal delay={60} className="gallery-cell gallery-cell--branding">
-            <article className="gallery-glass gallery-glass--lavender">
-              <div className="gallery-oval-wrap">
-                <img
-                  src="/founder/faizal.png"
-                  alt=""
-                  className="gallery-oval-img"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <Sparkle className="gallery-sparkle text-violet-400/80" />
-              <h3 className="gallery-glass-title gallery-glass-title--compact">{branding.title}</h3>
-              <p className="gallery-glass-note">{branding.note}</p>
-            </article>
-          </Reveal>
-
-          {/* 3 — Ads (tall right) */}
-          <Reveal delay={90} className="gallery-cell gallery-cell--ads">
-            <article className="gallery-glass gallery-glass--mint gallery-glass--dots">
-              <div className="gallery-avatar-stack" aria-hidden>
+          <article
+            className={`work-card work-card--social${on('social') ? ' is-on' : ''}`}
+            data-category="social"
+          >
+            <span className="work-card-plus" aria-hidden>
+              <Plus size={13} strokeWidth={2.4} />
+            </span>
+            <p className="work-card-cat">{byId.social.title}</p>
+            <h3 className="work-card-title">{byId.social.note}</h3>
+            <div className="work-social-stack" aria-hidden>
+              <div className="work-social-post">
                 <img src="/process/01-discover.png" alt="" />
-                <img src="/process/04-promote.png" alt="" />
-                <img src="/process/06-grow.png" alt="" />
-              </div>
-
-              <div className="gallery-pill-row">
-                <span className="gallery-pill gallery-pill--solid">Meta</span>
-                <span className="gallery-pill gallery-pill--outline">Google</span>
-              </div>
-
-              <h3 className="gallery-glass-title mt-auto">{ads.title}</h3>
-              <p className="gallery-glass-note">{ads.note}</p>
-            </article>
-          </Reveal>
-
-          {/* 4 — Campaigns (tags) */}
-          <Reveal delay={120} className="gallery-cell gallery-cell--campaigns">
-            <article className="gallery-glass gallery-glass--peach gallery-glass--dots">
-              <p className="gallery-tags-label">{campaigns.title}</p>
-              <div className="gallery-tags">
-                {gallery.map((item) => (
-                  <span key={item.id} className="gallery-tag">
-                    {item.title}
-                  </span>
-                ))}
-              </div>
-              <p className="gallery-glass-note gallery-tags-note">{campaigns.note}</p>
-            </article>
-          </Reveal>
-
-          {/* 5 — Social (wide) */}
-          <Reveal delay={150} className="gallery-cell gallery-cell--social">
-            <article className="gallery-glass gallery-glass--sky gallery-glass--dots gallery-glass--split">
-              <div className="gallery-social-copy">
-                <Sparkle className="gallery-sparkle text-sky-500/70" />
-                <h3 className="gallery-glass-title">{social.title}</h3>
-                <p className="gallery-glass-note">{social.note}</p>
-              </div>
-
-              <aside className="gallery-quote-card">
-                <span className="gallery-quote-mark" aria-hidden>
-                  “
-                </span>
-                <p className="gallery-quote-text">{social.note}</p>
-                <div className="gallery-quote-foot">
-                  <div className="gallery-quote-faces" aria-hidden>
-                    <img src="/process/02-strategize.png" alt="" />
-                    <img src="/process/05-optimize.png" alt="" />
-                    <img src="/founder/faizal.png" alt="" />
-                  </div>
-                  <p className="gallery-quote-attr">
-                    Digitz Creative
-                    <span>{social.title}</span>
-                  </p>
+                <div>
+                  <strong>Chai Sutta Bar</strong>
+                  <p>New drop. Same ritual.</p>
                 </div>
-              </aside>
-            </article>
-          </Reveal>
+              </div>
+              <div className="work-social-post">
+                <img src="/process/04-promote.png" alt="" />
+                <div>
+                  <strong>Benne Bhavan</strong>
+                  <p>Tonight&apos;s special, framed right.</p>
+                </div>
+              </div>
+            </div>
+            <a href={byId.social.href} className="work-card-cta">
+              {byId.social.cta}
+              <ArrowUpRight size={14} strokeWidth={2.2} aria-hidden />
+            </a>
+          </article>
         </div>
-      </Container>
+      </div>
     </section>
   )
 }

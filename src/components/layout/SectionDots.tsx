@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 
 const SECTIONS = [
   { id: 'top', label: 'Home' },
@@ -22,10 +22,6 @@ function goToSection(index: number) {
   window.dispatchEvent(
     new CustomEvent('digitz:goto-section', { detail: { index } }),
   )
-}
-
-function pad(n: number) {
-  return String(n).padStart(2, '0')
 }
 
 export function SectionDots() {
@@ -61,15 +57,12 @@ export function SectionDots() {
               <button
                 type="button"
                 className={`pg-dock-btn ${i === active ? 'is-active' : ''}`}
-                aria-label={`${pad(i + 1)} ${s.label}`}
+                aria-label={s.label}
                 aria-current={i === active ? 'true' : undefined}
                 onClick={() => goToSection(i)}
               >
+                <span className="pg-dock-label">{s.label}</span>
                 <span className="pg-dock-dot" aria-hidden />
-                <span className="pg-dock-meta">
-                  <span className="pg-dock-num">{pad(i + 1)}</span>
-                  <span className="pg-dock-label">{s.label}</span>
-                </span>
               </button>
             </li>
           ))}
@@ -82,7 +75,7 @@ export function SectionDots() {
           onClick={() => goToSection(Math.min(active + 1, last))}
           disabled={active >= last}
         >
-          <ArrowRight size={16} strokeWidth={1.9} />
+          <ChevronRight size={18} strokeWidth={2.1} />
         </button>
       </div>
     </div>

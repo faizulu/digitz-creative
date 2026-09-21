@@ -889,28 +889,47 @@ export const gallery = [
   {
     id: 'reels',
     title: 'Reels',
-    note: 'Short-form production — concept to publish.',
+    note: 'Short-form production — concept to launch.',
+    cta: 'View Project',
+    href: '#contact',
   },
   {
     id: 'branding',
     title: 'Branding',
     note: 'Identity systems, creatives, and brand language.',
+    cta: 'View Project',
+    href: '#contact',
+  },
+  {
+    id: 'campaigns',
+    title: 'Campaigns',
+    note: 'Logo systems and campaign marks built to travel.',
+    cta: 'View Project',
+    href: '#contact',
   },
   {
     id: 'ads',
     title: 'Ads',
     note: 'Meta and Google creatives built for response.',
-  },
-  {
-    id: 'campaigns',
-    title: 'Campaigns',
-    note: 'Integrated bursts: content, creators, and media.',
+    cta: 'Case Study',
+    href: '#work',
   },
   {
     id: 'social',
     title: 'Social',
     note: 'Always-on presence, captions, and community.',
+    cta: 'Case Study',
+    href: '#contact',
   },
+] as const
+
+export const galleryFilters = [
+  { id: 'all', label: 'All' },
+  { id: 'reels', label: 'Reels' },
+  { id: 'branding', label: 'Branding' },
+  { id: 'ads', label: 'Ads' },
+  { id: 'campaigns', label: 'Campaigns' },
+  { id: 'social', label: 'Social' },
 ] as const
 
 export const testimonials = {

@@ -84,8 +84,9 @@ export function NumbersSection() {
 
           <div className="impact-premium-stage relative gs-reveal-item">
             <div className="impact-premium-atmos pointer-events-none absolute inset-0 hidden lg:block" aria-hidden>
-              <div className="absolute top-1/4 right-1/4 h-80 w-80 rounded-full bg-violet-300/22 blur-[120px]" />
-              <div className="absolute right-10 bottom-1/4 h-72 w-72 rounded-full bg-amber-200/18 blur-[100px]" />
+              <div className="absolute top-1/4 right-1/4 h-80 w-80 rounded-full bg-[#B2F2BB]/[0.28] blur-[120px]" />
+              <div className="absolute right-6 top-[18%] h-64 w-64 rounded-full bg-[#A2D2FF]/[0.26] blur-[100px]" />
+              <div className="absolute right-10 bottom-1/4 h-72 w-72 rounded-full bg-[#FFD8A8]/[0.24] blur-[100px]" />
               <svg className="absolute inset-0 h-full w-full opacity-40">
                 <line
                   x1="8%"
