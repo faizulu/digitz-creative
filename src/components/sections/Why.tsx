@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type PointerEvent } from 'react'
 import gsap from 'gsap'
 import { why } from '../../data/content'
+import { ActionWord } from '../ui/HeroActionText'
 
 /** Soft pastel glass fills matching the staircase reference */
 const rowAccents = [
@@ -135,7 +136,7 @@ export function Why() {
           <p className="why-apple-eyebrow">Why Digitz Creative</p>
           <h2 id="why-heading" className="why-apple-title">
             Five reasons owners{' '}
-            <em className="why-apple-title-em">stay with the work.</em>
+            <ActionWord>stay</ActionWord> with the work.
           </h2>
         </header>
 

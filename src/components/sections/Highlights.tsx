@@ -6,6 +6,7 @@ import {
   personalBranding,
   whatsappUrl,
 } from '../../data/content'
+import { ActionWord } from '../ui/HeroActionText'
 
 function pad(i: number) {
   return String(i + 1).padStart(2, '0')
@@ -78,7 +79,7 @@ export function Highlights() {
               <h2 id="highlights-heading" className="hl-intro-title">
                 Brands designed to
                 <br />
-                <em>be remembered.</em>
+                be <ActionWord>remembered</ActionWord>.
               </h2>
               <p className="hl-intro-support">{highlightsSection.support}</p>
 

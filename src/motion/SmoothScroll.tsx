@@ -32,6 +32,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     let animating = false
     let touchX = 0
     let touchY = 0
+    let touchTarget: EventTarget | null = null
     let wheelAcc = 0
     let wheelTimer = 0
 
@@ -159,14 +160,33 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       if (e.touches.length !== 1) return
       touchX = e.touches[0].clientX
       touchY = e.touches[0].clientY
+      touchTarget = e.target
     }
 
     const onTouchEnd = (e: TouchEvent) => {
       if (locked || animating) return
       const t = e.changedTouches[0]
       if (!t) return
+
+      const startEl = touchTarget
+      touchTarget = null
+      if (
+        startEl instanceof Element &&
+        startEl.closest(
+          'a, button, input, textarea, select, .nv-root, .section-dots, .pg-dock, .wa-float',
+        )
+      ) {
+        return
+      }
+
       const dx = t.clientX - touchX
       const dy = t.clientY - touchY
+
+      // Prefer vertical scroll inside tall panels over deck change
+      if (isScrollableTarget(startEl) && Math.abs(dy) >= Math.abs(dx) * 0.85) {
+        return
+      }
+
       if (Math.abs(dx) < 48) return
       if (Math.abs(dx) < Math.abs(dy) * 1.15) return
       if (dx < 0) next()

@@ -8,6 +8,7 @@ import {
   Phone,
 } from 'lucide-react'
 import { brand, finalCta, whatsappUrl } from '../../data/content'
+import { ActionWord } from '../ui/HeroActionText'
 
 /** Tiruchirappalli city centre */
 const TRICHY = { lat: 10.7905, lng: 78.7047, zoom: 13 }
@@ -67,7 +68,7 @@ export function FinalCta() {
           <div className="ct-info">
             <p className="ct-eyebrow">Let&apos;s talk</p>
             <h2 id="contact-heading" className="ct-title">
-              Contact
+              <ActionWord>Contact</ActionWord>
             </h2>
             <p className="ct-lead">
               {finalCta.headline} {finalCta.headline2}

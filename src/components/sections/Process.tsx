@@ -2,6 +2,7 @@ import { useEffect, useRef, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import { ArrowUpRight } from 'lucide-react'
 import { process, whatsappUrl } from '../../data/content'
+import { ActionWord } from '../ui/HeroActionText'
 
 const accents = [
   { ink: '#C45C4A', soft: 'rgba(196, 92, 74, 0.18)' },
@@ -70,8 +71,8 @@ export function Process() {
             <div className="process-deck-head-copy">
               <p className="process-deck-eyebrow">Signature process</p>
               <h2 id="process-heading" className="process-deck-title">
-                Discover to grow{' '}
-                <em className="process-deck-title-em">a single thread.</em>
+                Discover to <ActionWord>grow</ActionWord>{' '}
+                a single thread.
               </h2>
               <p className="process-deck-body">
                 Six stages. No theatre. Each step turns a business problem into a

@@ -1,38 +1,66 @@
-import { useEffect, useRef, type CSSProperties, type PointerEvent } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import {
-  ArrowDown,
-  ArrowUpRight,
-  Crosshair,
-  Sparkle,
-  Users,
-} from 'lucide-react'
-import { brand, founder } from '../../data/content'
+import { ArrowUpRight, MessageCircle } from 'lucide-react'
+import { RocketMark } from '../brand/RocketMark'
+import { founder } from '../../data/content'
+import { ActionWord } from '../ui/HeroActionText'
 
-const cards = [
-  { text: founder.points[0], Icon: Sparkle, tint: 'cyan' },
-  { text: founder.points[1], Icon: Users, tint: 'mint' },
-  { text: founder.points[2], Icon: Crosshair, tint: 'violet' },
-] as const
+const bridgeCraft = ['Content', 'Strategy', 'Growth'] as const
 
-function setTilt(el: HTMLElement, e: PointerEvent<HTMLElement>, strength = 9) {
-  const r = el.getBoundingClientRect()
-  const x = (e.clientX - r.left) / r.width
-  const y = (e.clientY - r.top) / r.height
-  el.style.setProperty('--rx', `${((0.5 - y) * strength).toFixed(2)}deg`)
-  el.style.setProperty('--ry', `${((x - 0.5) * (strength + 2)).toFixed(2)}deg`)
-  el.style.setProperty('--mx', `${x * 100}%`)
-  el.style.setProperty('--my', `${y * 100}%`)
+function ImpactSparkline() {
+  return (
+    <svg className="fd-impact-chart" viewBox="0 0 120 40" fill="none" aria-hidden>
+      <defs>
+        <linearGradient id="fd-spark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="rgb(21 120 184 / 0.35)" />
+          <stop offset="100%" stopColor="rgb(21 120 184 / 0)" />
+        </linearGradient>
+        <linearGradient id="fd-spark-stroke" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#1578b8" />
+          <stop offset="100%" stopColor="#58b832" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0 32 C18 30 22 22 36 20 C50 18 54 28 68 18 C82 8 90 14 104 10 L120 6 V40 H0 Z"
+        fill="url(#fd-spark-fill)"
+      />
+      <path
+        d="M0 32 C18 30 22 22 36 20 C50 18 54 28 68 18 C82 8 90 14 104 10 L120 6"
+        stroke="url(#fd-spark-stroke)"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
 }
 
-function clearTilt(el: HTMLElement) {
-  el.style.setProperty('--rx', '0deg')
-  el.style.setProperty('--ry', '0deg')
+function BlobShape() {
+  return (
+    <svg
+      className="fd-blob"
+      viewBox="0 0 480 520"
+      fill="none"
+      aria-hidden
+      preserveAspectRatio="xMidYMid meet"
+    >
+      <defs>
+        <linearGradient id="fd-blob-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#D6EAF7" />
+          <stop offset="55%" stopColor="#C5E4F5" />
+          <stop offset="100%" stopColor="#D4EDC8" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M380 48C448 98 478 178 468 258C458 338 408 412 328 458C248 504 148 522 78 478C8 434 -8 338 18 248C44 158 112 78 198 38C284 -2 312 -2 380 48Z"
+        fill="url(#fd-blob-fill)"
+      />
+    </svg>
+  )
 }
 
 export function Founder() {
   const rootRef = useRef<HTMLElement>(null)
-  const bubbleRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -41,39 +69,27 @@ export function Founder() {
     const play = () => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out', overwrite: true } })
       tl.fromTo(
-        '.fd-rail > *',
-        { autoAlpha: 0, y: 16 },
-        { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.06 },
+        '.fd-visual',
+        { autoAlpha: 0, scale: 0.94, y: 18 },
+        { autoAlpha: 1, scale: 1, y: 0, duration: 0.85 },
       )
         .fromTo(
-          '.fd-bubble',
-          { autoAlpha: 0, scale: 0.92, rotateY: 10 },
-          { autoAlpha: 1, scale: 1, rotateY: 0, duration: 0.7 },
-          '-=0.25',
+          '.fd-copy > *',
+          { autoAlpha: 0, x: -20 },
+          { autoAlpha: 1, x: 0, duration: 0.48, stagger: 0.05 },
+          '-=0.55',
         )
         .fromTo(
-          '.fd-quote',
-          { autoAlpha: 0, y: 24, x: -12 },
-          { autoAlpha: 1, y: 0, x: 0, duration: 0.55 },
-          '-=0.35',
+          '.fd-bridge',
+          { autoAlpha: 0, y: 12, scale: 0.96 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.55 },
+          '-=0.4',
         )
         .fromTo(
-          '.fd-bio > *',
-          { autoAlpha: 0, y: 14 },
-          { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.045 },
-          '-=0.35',
-        )
-        .fromTo(
-          '.fd-card',
-          { autoAlpha: 0, x: 28, rotateY: -12, scale: 0.94 },
-          { autoAlpha: 1, x: 0, rotateY: 0, scale: 1, duration: 0.5, stagger: 0.08 },
-          '-=0.25',
-        )
-        .fromTo(
-          '.fd-orb',
-          { autoAlpha: 0, scale: 0.7 },
-          { autoAlpha: 1, scale: 1, duration: 1.1, stagger: 0.12 },
-          0,
+          '.fd-chip',
+          { autoAlpha: 0, y: 16, scale: 0.92 },
+          { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.1 },
+          '-=0.3',
         )
     }
 
@@ -104,121 +120,82 @@ export function Founder() {
       className="fd-magic"
       aria-labelledby="founder-heading"
     >
-      <div className="fd-shell">
-        {/* Floating 3D liquid glass orbs */}
-        <div className="fd-orbs" aria-hidden>
-          <span className="fd-orb fd-orb--a" />
-          <span className="fd-orb fd-orb--b" />
-          <span className="fd-orb fd-orb--c" />
-          <span className="fd-orb fd-orb--d" />
-          <span className="fd-orb fd-orb--e" />
+      <div className="fd-stage">
+        <div className="fd-copy">
+          <p className="fd-hello">{founder.hello}</p>
+          <h2 id="founder-heading" className="fd-name">
+            {founder.firstName}{' '}
+            <ActionWord>{founder.lastName}</ActionWord>
+          </h2>
+          <p className="fd-title">{founder.titleLine}</p>
+          <p className="fd-body">{founder.body}</p>
+
+          <div className="fd-actions">
+            <a href={founder.primaryCta.href} className="fd-btn fd-btn--solid">
+              {founder.primaryCta.label}
+              <ArrowUpRight size={15} strokeWidth={2.1} aria-hidden />
+            </a>
+            <a href={founder.secondaryCta.href} className="fd-btn fd-btn--line">
+              <MessageCircle size={14} strokeWidth={2.1} aria-hidden />
+              {founder.secondaryCta.label}
+            </a>
+          </div>
+
+          <div className="fd-trusted">
+            <ul className="fd-trusted-list" aria-label={founder.trustedLabel}>
+              {founder.trustedBrands.map((brandName) => (
+                <li key={brandName} className="fd-trusted-item">
+                  {brandName}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="fd-stage">
-          {/* Left rail */}
-          <aside className="fd-rail">
-            <div className="fd-rail-head">
-              <span className="fd-rail-rule" aria-hidden />
-              <p className="fd-rail-label">{founder.meetLabel}</p>
-            </div>
-            <p className="fd-rail-copy">{founder.meetIntro}</p>
-            <a href="#why" className="fd-rail-arrow" aria-label="Continue to why Digitz">
-              <ArrowDown size={16} strokeWidth={1.75} />
-            </a>
-          </aside>
-
-          {/* Center — liquid glass portrait + quote */}
-          <div className="fd-visual">
-            <div
-              ref={bubbleRef}
-              className="fd-bubble"
-              style={{ '--rx': '0deg', '--ry': '0deg', '--mx': '42%', '--my': '28%' } as CSSProperties}
-              onPointerMove={(e) => {
-                if (bubbleRef.current) setTilt(bubbleRef.current, e, 8)
-              }}
-              onPointerLeave={() => {
-                if (bubbleRef.current) clearTilt(bubbleRef.current)
-              }}
-            >
-              <div className="fd-bubble-glass" aria-hidden />
-              <div className="fd-bubble-rim" aria-hidden />
-              <div className="fd-bubble-sheen" aria-hidden />
-              <img
-                src={founder.image}
-                alt={founder.imageAlt}
-                className="fd-bubble-img"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-
-            <blockquote className="fd-quote">
-              <span className="fd-quote-mark" aria-hidden>
-                &ldquo;
-              </span>
-              <p>{founder.quote}</p>
-              <cite className="fd-quote-sign">{founder.legal}</cite>
-            </blockquote>
+        <div className="fd-bridge" aria-hidden>
+          <span className="fd-bridge-line fd-bridge-line--top" />
+          <div className="fd-bridge-orb">
+            <span className="fd-bridge-ring fd-bridge-ring--a" />
+            <span className="fd-bridge-ring fd-bridge-ring--b" />
+            <RocketMark className="fd-bridge-rocket" />
           </div>
-
-          {/* Bio */}
-          <div className="fd-bio">
-            <span className="fd-badge">{founder.badge}</span>
-            <h2 id="founder-heading" className="fd-name">
-              {founder.firstName}{' '}
-              <span className="fd-name-last">{founder.lastName}</span>
-            </h2>
-            <p className="fd-role">
-              {founder.roleShort}
-              <span className="fd-role-sep" aria-hidden>
-                ·
-              </span>
-              {founder.brandLine}
-            </p>
-            <p className="fd-body">{founder.body}</p>
-            <a
-              href={brand.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group fd-cta"
-            >
-              Follow the practice
-              <span className="fd-cta-icon" aria-hidden>
-                <ArrowUpRight size={14} strokeWidth={1.75} />
-              </span>
-            </a>
-          </div>
-
-          {/* Right — 3 stacked liquid glass cards */}
-          <ul className="fd-cards">
-            {cards.map(({ text, Icon, tint }, i) => (
-              <li
-                key={text}
-                className={`fd-card fd-card--${tint}`}
-                style={
-                  {
-                    '--rx': '0deg',
-                    '--ry': '0deg',
-                    '--mx': '50%',
-                    '--my': '35%',
-                  } as CSSProperties
-                }
-                onPointerMove={(e) => setTilt(e.currentTarget, e, 10)}
-                onPointerLeave={(e) => clearTilt(e.currentTarget)}
-              >
-                <span className="fd-card-glow" aria-hidden />
-                <span className="fd-card-sheen" aria-hidden />
-                <div className="fd-card-top">
-                  <span className="fd-card-index">{String(i + 1).padStart(2, '0')}</span>
-                  <Icon size={15} strokeWidth={1.6} className="fd-card-icon" aria-hidden />
-                </div>
-                <p className="fd-card-text">{text}</p>
-                <span className="fd-card-go" aria-hidden>
-                  <ArrowUpRight size={13} strokeWidth={1.75} />
-                </span>
-              </li>
+          <p className="fd-bridge-brand">{founder.brandLine}</p>
+          <ul className="fd-bridge-craft">
+            {bridgeCraft.map((item) => (
+              <li key={item}>{item}</li>
             ))}
           </ul>
+          <p className="fd-bridge-place">{founder.place}</p>
+          <span className="fd-bridge-line fd-bridge-line--bot" />
+        </div>
+
+        <div className="fd-visual">
+          <BlobShape />
+          <div className="fd-portrait-wrap">
+            <img
+              src={founder.image}
+              alt={founder.imageAlt}
+              className="fd-portrait"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <div
+            className="fd-chip fd-chip--years"
+            aria-label={`${founder.yearsValue} ${founder.yearsLabel}`}
+          >
+            <p className="fd-chip-value">{founder.yearsValue}</p>
+            <p className="fd-chip-label">{founder.yearsLabel}</p>
+          </div>
+
+          <div className="fd-chip fd-chip--impact">
+            <div className="fd-chip-impact-head">
+              <p className="fd-chip-label">{founder.impactLabel}</p>
+              <p className="fd-chip-value fd-chip-value--sm">{founder.impactValue}</p>
+            </div>
+            <ImpactSparkline />
+          </div>
         </div>
       </div>
     </section>

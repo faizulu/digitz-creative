@@ -2,18 +2,19 @@ import { Check } from 'lucide-react'
 import { packages, whatsappUrl } from '../../data/content'
 import { Container } from '../ui/Container'
 import { Reveal } from '../ui/Reveal'
+import { ActionWord } from '../ui/HeroActionText'
 
 export function Packages() {
   return (
     <section id="packages" className="packages-panel relative overflow-hidden">
-      <Container>
+      <Container className="flex min-h-0 flex-col justify-center py-1">
         <Reveal>
-          <div className="mx-auto mb-8 max-w-2xl text-center md:mb-10">
+          <div className="packages-intro mx-auto max-w-2xl text-center">
             <p className="mb-3 text-[12px] font-medium tracking-[0.08em] text-slate-500">
               Packages
             </p>
             <h2 className="section-hero-title text-[clamp(1.75rem,3.5vw,2.75rem)] leading-[1.15] font-bold tracking-[-0.03em] text-slate-900">
-              Start. Grow. Scale.
+              Start. Grow. <ActionWord>Scale</ActionWord>.
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-slate-500">
               Simple structure, custom scoped. Pricing is set against the brief and the business,
@@ -22,16 +23,19 @@ export function Packages() {
           </div>
         </Reveal>
 
-        <div className="grid items-stretch gap-4 lg:grid-cols-3 lg:gap-5">
+        <div className="packages-grid grid items-stretch gap-4 lg:grid-cols-3 lg:gap-5">
           {packages.map((pkg, i) => (
-            <Reveal key={pkg.name} delay={i * 70}>
+            <Reveal key={pkg.name} delay={i * 70} className="h-full min-h-0">
               <article
-                className={`pkg-glass flex h-full flex-col rounded-[1.75rem] p-3 sm:p-3.5 ${
-                  pkg.featured ? 'pkg-glass--featured lg:-translate-y-1' : ''
+                className={`pkg-glass flex h-full flex-col p-3 sm:p-3.5 ${
+                  pkg.featured ? 'pkg-glass--featured' : ''
                 }`}
               >
-                <div className="pkg-glass-inner rounded-[1.35rem] p-5 sm:p-6">
-                  <span className="inline-flex rounded-full border border-white/50 bg-white/55 px-3 py-1 text-[11px] font-semibold tracking-wide text-slate-800 shadow-sm backdrop-blur-sm">
+                <span className="pkg-glass-sheen" aria-hidden />
+                <span className="pkg-glass-rim" aria-hidden />
+
+                <div className="pkg-glass-inner rounded-[1.4rem] p-5 sm:p-6">
+                  <span className="inline-flex rounded-full border border-white/55 bg-white/60 px-3 py-1 text-[11px] font-semibold tracking-wide text-slate-800 shadow-sm backdrop-blur-sm">
                     {pkg.name}
                   </span>
 
@@ -52,10 +56,10 @@ export function Packages() {
                   </a>
                 </div>
 
-                <ul className="flex flex-1 flex-col gap-3 px-2 pt-5 pb-2 sm:px-3 sm:pt-6">
+                <ul className="flex flex-1 flex-col gap-2.5 px-2 pt-4 pb-1 sm:gap-3 sm:px-3 sm:pt-5">
                   {pkg.points.map((point) => (
                     <li key={point} className="flex gap-3 text-[14px] leading-snug text-slate-600">
-                      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-white/70 text-[#1578b8]">
+                      <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-white/75 text-[#1578b8] shadow-sm">
                         <Check size={12} strokeWidth={2.5} aria-hidden />
                       </span>
                       <span>{point}</span>
@@ -64,7 +68,7 @@ export function Packages() {
                 </ul>
 
                 {pkg.featured ? (
-                  <p className="px-3 pb-2 text-[11px] font-medium tracking-[0.12em] text-slate-500 uppercase">
+                  <p className="px-3 pb-1 text-[11px] font-medium tracking-[0.12em] text-slate-500 uppercase">
                     Most partners live here
                   </p>
                 ) : null}
@@ -73,7 +77,7 @@ export function Packages() {
           ))}
         </div>
 
-        <p className="mt-6 text-center text-sm text-slate-500 sm:text-left">
+        <p className="packages-note text-center text-sm text-slate-500">
           Custom packages available based on business objectives.
         </p>
       </Container>

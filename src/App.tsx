@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Footer } from './components/layout/Footer'
+import { InitialLoader } from './components/layout/InitialLoader'
 import { Navigation } from './components/layout/Navigation'
 import { SectionDots } from './components/layout/SectionDots'
 import { WhatsAppFloat } from './components/layout/WhatsAppFloat'
@@ -27,37 +28,39 @@ const GlassAgencyBackground = lazy(() =>
 
 export default function App() {
   return (
-    <GsapScrollRoot>
-      <SmoothScroll>
-        <a className="skip-link" href="#main">
-          Skip to content
-        </a>
-        <Suspense fallback={null}>
-          <GlassAgencyBackground />
-        </Suspense>
-        <div className="bg-noise" aria-hidden="true" />
-        <div className="site-glass-foreground">
-          <Navigation />
-          <SectionDots />
-          <main id="main" className="fullpage-main hdeck-track" aria-label="Site panels">
-            <Hero />
-            <NumbersSection />
-            <Services />
-            <Process />
-            <Clients />
-            <CaseStudies />
-            <Highlights />
-            <Founder />
-            <Why />
-            <Packages />
-            <Gallery />
-            <Testimonials />
-            <FinalCta />
-            <Footer />
-          </main>
-        </div>
-        <WhatsAppFloat />
-      </SmoothScroll>
-    </GsapScrollRoot>
+    <InitialLoader>
+      <GsapScrollRoot>
+        <SmoothScroll>
+          <a className="skip-link" href="#main">
+            Skip to content
+          </a>
+          <Suspense fallback={null}>
+            <GlassAgencyBackground />
+          </Suspense>
+          <div className="bg-noise" aria-hidden="true" />
+          <div className="site-glass-foreground">
+            <Navigation />
+            <SectionDots />
+            <main id="main" className="fullpage-main hdeck-track" aria-label="Site panels">
+              <Hero />
+              <NumbersSection />
+              <Services />
+              <Process />
+              <Clients />
+              <CaseStudies />
+              <Highlights />
+              <Founder />
+              <Why />
+              <Packages />
+              <Gallery />
+              <Testimonials />
+              <FinalCta />
+              <Footer />
+            </main>
+          </div>
+          <WhatsAppFloat />
+        </SmoothScroll>
+      </GsapScrollRoot>
+    </InitialLoader>
   )
 }

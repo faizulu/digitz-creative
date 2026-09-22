@@ -3,6 +3,7 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import { Container } from '../ui/Container'
 import { caseStudies, caseStudiesSection } from '../../data/content'
+import { HeroActionText } from '../ui/HeroActionText'
 
 function padIndex(i: number) {
   return String(i + 1).padStart(2, '0')
@@ -34,14 +35,18 @@ export function CaseStudies() {
         aria-hidden
       />
 
-      <Container className="relative z-[1]">
+      <Container className="relative z-[1] selected-work-shell">
         <div className="selected-work-rail">
           <header className="selected-work-intro gs-reveal">
             <div>
               <span className="selected-work-eyebrow">{caseStudiesSection.tag}</span>
-              <h2 id="work-heading" className="selected-work-heading text-balance">
-                {caseStudiesSection.title}
-              </h2>
+              <HeroActionText
+                as="h2"
+                id="work-heading"
+                className="selected-work-heading text-balance"
+                text={caseStudiesSection.title}
+                action="move"
+              />
               <p className="selected-work-desc text-pretty">
                 {caseStudiesSection.support}
               </p>

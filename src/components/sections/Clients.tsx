@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { clientConstellation, clientsSection } from '../../data/content'
 import { Container } from '../ui/Container'
+import { HeroActionText } from '../ui/HeroActionText'
 
 const PARTICLES = [
   { x: 42, y: 28, s: 2, d: 0 },
@@ -140,8 +141,12 @@ export function Clients() {
           <header className="clients-constellation-header">
             <p className="clients-constellation-eyebrow">{clientsSection.tag}</p>
             <h2 className="clients-constellation-title">
-              <span className="clients-constellation-title-strong">{clientsSection.title}</span>
-              <em className="clients-constellation-title-accent">{clientsSection.titleAccent}</em>
+              <HeroActionText
+                className="clients-constellation-title-strong"
+                text={clientsSection.title}
+                action="partner"
+              />
+              <span className="clients-constellation-title-accent">{clientsSection.titleAccent}</span>
             </h2>
             <p className="clients-constellation-support">{clientsSection.support}</p>
           </header>
