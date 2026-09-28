@@ -65,10 +65,19 @@ export function Clients() {
   const [hovered, setHovered] = useState<string | null>(null)
   const [inView, setInView] = useState(false)
   const [isFinePointer, setIsFinePointer] = useState(false)
+  const [isCompact, setIsCompact] = useState(false)
 
   useEffect(() => {
     const mq = window.matchMedia('(pointer: fine)')
     const sync = () => setIsFinePointer(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023px)')
+    const sync = () => setIsCompact(mq.matches)
     sync()
     mq.addEventListener('change', sync)
     return () => mq.removeEventListener('change', sync)
@@ -235,7 +244,7 @@ export function Clients() {
                 >
                   <motion.div
                     className="relative z-[1]"
-                    animate={reduceMotion || isActive ? { y: 0 } : { y: [-5, 5] }}
+                    animate={reduceMotion || isCompact || isActive ? { y: 0 } : { y: [-5, 5] }}
                     transition={
                       reduceMotion
                         ? { duration: 0 }

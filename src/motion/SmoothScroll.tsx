@@ -80,6 +80,14 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     gsap.set(main, { x: -index * window.innerWidth })
     emit(index)
 
+    const horizontalRail = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      const rail = target.closest('.clients-constellation-stage')
+      if (!(rail instanceof HTMLElement)) return null
+      if (rail.scrollWidth <= rail.clientWidth + 8) return null
+      return rail
+    }
+
     const isScrollableTarget = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return false
       const panel = target.closest('#main > section, #main > footer')
@@ -98,15 +106,35 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const dx = e.deltaX
       const dy = e.deltaY
 
-      // Inside a tall panel: allow vertical scroll until edges, then change slide
+      const rail = horizontalRail(e.target)
+      if (rail && Math.abs(dx) > Math.abs(dy)) {
+        const max = rail.scrollWidth - rail.clientWidth
+        const atStart = rail.scrollLeft <= 0
+        const atEnd = rail.scrollLeft >= max - 2
+        if ((dx > 0 && !atEnd) || (dx < 0 && !atStart)) {
+          rail.scrollLeft += dx
+          e.preventDefault()
+          return
+        }
+      }
+
+      // Inside a tall panel: scroll that panel until its edges, then change slide.
+      // Body is position:fixed, so the wheel must move the panel itself.
       if (isScrollableTarget(e.target) && Math.abs(dy) >= Math.abs(dx)) {
         const panel = (e.target as Element).closest(
           '#main > section, #main > footer',
         ) as HTMLElement
+        const max = panel.scrollHeight - panel.clientHeight
         const atTop = panel.scrollTop <= 0
-        const atBottom =
-          panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 2
-        if ((dy < 0 && !atTop) || (dy > 0 && !atBottom)) {
+        const atBottom = panel.scrollTop >= max - 2
+        if (dy > 0 && !atBottom) {
+          panel.scrollTop = Math.min(max, panel.scrollTop + dy)
+          e.preventDefault()
+          return
+        }
+        if (dy < 0 && !atTop) {
+          panel.scrollTop = Math.max(0, panel.scrollTop + dy)
+          e.preventDefault()
           return
         }
       }
@@ -182,6 +210,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const dx = t.clientX - touchX
       const dy = t.clientY - touchY
 
+      if (horizontalRail(startEl) && Math.abs(dx) > Math.abs(dy)) return
+
       // Prefer vertical scroll inside tall panels over deck change
       if (isScrollableTarget(startEl) && Math.abs(dy) >= Math.abs(dx) * 0.85) {
         return
@@ -198,7 +228,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       if (e.button !== 0) return
       // Ignore UI controls
       const el = e.target
-      if (el instanceof Element && el.closest('a, button, input, textarea, select, .nv-root, .section-dots, .wa-float')) {
+      if (el instanceof Element && el.closest('a, button, input, textarea, select, .nv-root, .section-dots, .wa-float, .clients-constellation-stage')) {
         return
       }
       touchX = e.clientX

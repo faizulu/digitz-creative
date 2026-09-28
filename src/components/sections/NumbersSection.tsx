@@ -83,6 +83,7 @@ export function NumbersSection() {
           </div>
 
           <div className="impact-premium-stage relative gs-reveal-item">
+            <div className="impact-stage-fit">
             <div className="impact-premium-atmos pointer-events-none absolute inset-0 hidden lg:block" aria-hidden>
               <div className="absolute top-1/4 right-1/4 h-80 w-80 rounded-full bg-[#B2F2BB]/[0.28] blur-[120px]" />
               <div className="absolute right-6 top-[18%] h-64 w-64 rounded-full bg-[#A2D2FF]/[0.26] blur-[100px]" />
@@ -223,6 +224,7 @@ export function NumbersSection() {
               <span className="font-mono text-[9px] text-gray-400 uppercase">04. Efficiency</span>
               <span className="impact-card-value mt-0.5 block font-bold text-gray-900">75%</span>
               <span className="impact-card-desc text-[10px] text-gray-500">Team Hours Saved</span>
+            </div>
             </div>
           </div>
         </div>
