@@ -2,6 +2,7 @@ import { useEffect, useRef, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import { ArrowUpRight } from 'lucide-react'
 import { process, whatsappUrl } from '../../data/content'
+import { isCurrentDeckPanel } from '../../motion/panelActive'
 import { ActionWord } from '../ui/HeroActionText'
 
 const accents = [
@@ -37,7 +38,7 @@ export function Process() {
     }
 
     const ctx = gsap.context(() => {
-      play()
+      if (isCurrentDeckPanel(rootRef.current)) play()
     }, rootRef)
 
     const onSnap = (e: Event) => {

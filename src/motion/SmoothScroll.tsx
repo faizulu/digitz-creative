@@ -1,5 +1,8 @@
 import { useLayoutEffect, type ReactNode } from 'react'
 import gsap from 'gsap'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
+
+gsap.registerPlugin(ScrollToPlugin)
 
 type DigitzDeck = {
   goTo: (index: number) => void
@@ -9,9 +12,13 @@ type DigitzDeck = {
   count: () => number
 }
 
+const IGNORE =
+  'a, button, input, textarea, select, .nv-root, .section-dots, .pg-dock, .wa-float'
+
 /**
- * Horizontal full-page deck: swipe / wheel / keys move left-right.
- * No vertical page scroll. One panel = 100vw x 100dvh.
+ * Horizontal full-page deck.
+ * The track follows the finger with one reused tween, then eases onto the
+ * nearest panel. Wheel movement inside a tall panel is eased the same way.
  */
 export function SmoothScroll({ children }: { children: ReactNode }) {
   useLayoutEffect(() => {
@@ -21,6 +28,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const main = document.getElementById('main')
     if (!main) return
 
+    gsap.ticker.lagSmoothing(250, 16)
+
     root.classList.add('is-hdeck')
     body.classList.add('is-hdeck')
 
@@ -29,14 +38,25 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     let index = 0
     let locked = false
-    let animating = false
-    let touchX = 0
-    let touchY = 0
-    let touchTarget: EventTarget | null = null
+    let hotCenter = -1
     let wheelAcc = 0
     let wheelTimer = 0
+    let wheelGate = 0
+    const scrollIntent = new WeakMap<HTMLElement, number>()
 
     const clamp = (i: number) => Math.max(0, Math.min(i, panels().length - 1))
+    const width = () => window.innerWidth
+    const minX = () => -(panels().length - 1) * width()
+
+    const markHot = (center: number) => {
+      const list = panels()
+      const c = Math.max(0, Math.min(list.length - 1, Math.round(center)))
+      if (c === hotCenter) return
+      hotCenter = c
+      list.forEach((panel, i) => {
+        panel.classList.toggle('is-deck-hot', Math.abs(i - c) <= 1)
+      })
+    }
 
     const emit = (i: number) => {
       window.dispatchEvent(
@@ -48,36 +68,50 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       }
     }
 
-    const apply = (i: number, instant = false) => {
-      index = clamp(i)
-      const duration = reduced || instant ? 0 : 0.78
-      animating = duration > 0
-      gsap.to(main, {
-        x: () => -index * window.innerWidth,
-        duration,
-        ease: 'power3.out',
-        overwrite: true,
-        onComplete: () => {
-          animating = false
-          emit(index)
-        },
-      })
-      if (duration === 0) emit(index)
+    const xTo = gsap.quickTo(main, 'x', { duration: 0.34, ease: 'power3.out' })
+
+    const resist = (x: number) => {
+      const min = minX()
+      if (x > 0) return x * 0.28
+      if (x < min) return min + (x - min) * 0.28
+      return x
     }
 
     const goTo = (i: number, instant = false) => {
       if (locked) return
-      apply(i, instant)
+      const next = clamp(i)
+      const from = index
+      const changed = next !== from
+      index = next
+      markHot(next)
+      const distance = Math.abs(next - from)
+      const duration = reduced || instant ? 0 : Math.min(1.05, 0.78 + distance * 0.04)
+      if (duration === 0) {
+        gsap.killTweensOf(main)
+        gsap.set(main, { x: -next * width(), force3D: true })
+        if (changed) emit(next)
+        return
+      }
+      gsap.to(main, {
+        x: () => -index * width(),
+        duration,
+        ease: 'expo.out',
+        overwrite: true,
+        force3D: true,
+        onStart: () => {
+          if (changed) emit(index)
+        },
+      })
     }
 
     const next = () => goTo(index + 1)
     const prev = () => goTo(index - 1)
 
-    // Initial position from hash
     const hash = window.location.hash.replace('#', '')
     const hashIdx = panels().findIndex((p) => p.id === hash)
     if (hashIdx >= 0) index = hashIdx
-    gsap.set(main, { x: -index * window.innerWidth })
+    gsap.set(main, { x: -index * width(), force3D: true })
+    markHot(index)
     emit(index)
 
     const horizontalRail = (target: EventTarget | null) => {
@@ -88,17 +122,48 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       return rail
     }
 
+    let scrollableCache = new WeakMap<Element, boolean>()
     const isScrollableTarget = (target: EventTarget | null) => {
       if (!(target instanceof Element)) return false
       const panel = target.closest('#main > section, #main > footer')
       if (!(panel instanceof HTMLElement)) return false
-      const style = getComputedStyle(panel)
-      if (!/(auto|scroll)/.test(style.overflowY)) return false
-      return panel.scrollHeight > panel.clientHeight + 4
+      let overflow = scrollableCache.get(panel)
+      if (overflow == null) {
+        overflow = /(auto|scroll)/.test(getComputedStyle(panel).overflowY)
+        scrollableCache.set(panel, overflow)
+      }
+      return overflow && panel.scrollHeight > panel.clientHeight + 4
+    }
+
+    const panelOf = (target: EventTarget | null) => {
+      if (!(target instanceof Element)) return null
+      const panel = target.closest('#main > section, #main > footer')
+      return panel instanceof HTMLElement ? panel : null
+    }
+
+    const intentOf = (el: HTMLElement, axis: 'x' | 'y' = 'y') => {
+      const remembered = scrollIntent.get(el)
+      const visual = axis === 'x' ? el.scrollLeft : el.scrollTop
+      if (remembered == null || !gsap.isTweening(el)) return visual
+      return remembered
+    }
+
+    const nudgePanel = (panel: HTMLElement, dy: number) => {
+      const max = Math.max(0, panel.scrollHeight - panel.clientHeight)
+      const base = intentOf(panel)
+      const nextTop = Math.max(0, Math.min(max, base + dy))
+      scrollIntent.set(panel, nextTop)
+      gsap.to(panel, {
+        scrollTo: { y: nextTop },
+        duration: 0.7,
+        ease: 'power3.out',
+        overwrite: 'auto',
+      })
+      return { base, nextTop, max }
     }
 
     const onWheel = (e: WheelEvent) => {
-      if (locked || animating) {
+      if (locked) {
         e.preventDefault()
         return
       }
@@ -109,56 +174,66 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const rail = horizontalRail(e.target)
       if (rail && Math.abs(dx) > Math.abs(dy)) {
         const max = rail.scrollWidth - rail.clientWidth
-        const atStart = rail.scrollLeft <= 0
-        const atEnd = rail.scrollLeft >= max - 2
+        const base = intentOf(rail, 'x')
+        const atStart = base <= 1
+        const atEnd = base >= max - 2
         if ((dx > 0 && !atEnd) || (dx < 0 && !atStart)) {
-          rail.scrollLeft += dx
+          const nextLeft = Math.max(0, Math.min(max, base + dx))
+          scrollIntent.set(rail, nextLeft)
+          gsap.to(rail, {
+            scrollTo: { x: nextLeft },
+            duration: 0.45,
+            ease: 'power3.out',
+            overwrite: 'auto',
+          })
           e.preventDefault()
           return
         }
       }
 
-      // Inside a tall panel: scroll that panel until its edges, then change slide.
-      // Body is position:fixed, so the wheel must move the panel itself.
       if (isScrollableTarget(e.target) && Math.abs(dy) >= Math.abs(dx)) {
-        const panel = (e.target as Element).closest(
-          '#main > section, #main > footer',
-        ) as HTMLElement
-        const max = panel.scrollHeight - panel.clientHeight
-        const atTop = panel.scrollTop <= 0
-        const atBottom = panel.scrollTop >= max - 2
-        if (dy > 0 && !atBottom) {
-          panel.scrollTop = Math.min(max, panel.scrollTop + dy)
-          e.preventDefault()
-          return
-        }
-        if (dy < 0 && !atTop) {
-          panel.scrollTop = Math.max(0, panel.scrollTop + dy)
-          e.preventDefault()
-          return
+        const panel = panelOf(e.target)
+        if (panel) {
+          const max = Math.max(0, panel.scrollHeight - panel.clientHeight)
+          const base = intentOf(panel)
+          const atTop = base <= 1
+          const atBottom = base >= max - 2
+          if (dy > 0 && !atBottom) {
+            nudgePanel(panel, dy)
+            e.preventDefault()
+            return
+          }
+          if (dy < 0 && !atTop) {
+            nudgePanel(panel, dy)
+            e.preventDefault()
+            return
+          }
         }
       }
 
       const dominant = Math.abs(dx) > Math.abs(dy) ? dx : dy
-      if (Math.abs(dominant) < 8) return
+      if (Math.abs(dominant) < 6) return
       e.preventDefault()
+
+      if (performance.now() < wheelGate) return
 
       wheelAcc += dominant
       window.clearTimeout(wheelTimer)
       wheelTimer = window.setTimeout(() => {
         wheelAcc = 0
-      }, 280)
+      }, 260)
 
-      if (Math.abs(wheelAcc) < 40) return
+      if (Math.abs(wheelAcc) < 36) return
       const dir = wheelAcc > 0 ? 1 : -1
       wheelAcc = 0
+      wheelGate = performance.now() + 480
       goTo(index + dir)
     }
 
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
-      if (locked || animating) return
+      if (locked) return
 
       if (
         e.key === 'ArrowRight' ||
@@ -184,66 +259,97 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       }
     }
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return
-      touchX = e.touches[0].clientX
-      touchY = e.touches[0].clientY
-      touchTarget = e.target
+    type Drag = {
+      pointerId: number
+      startX: number
+      startY: number
+      originX: number
+      targetX: number
+      lastX: number
+      lastT: number
+      velocity: number
+      axis: 'undecided' | 'x' | 'y'
+      target: EventTarget | null
     }
 
-    const onTouchEnd = (e: TouchEvent) => {
-      if (locked || animating) return
-      const t = e.changedTouches[0]
-      if (!t) return
+    let drag: Drag | null = null
 
-      const startEl = touchTarget
-      touchTarget = null
-      if (
-        startEl instanceof Element &&
-        startEl.closest(
-          'a, button, input, textarea, select, .nv-root, .section-dots, .pg-dock, .wa-float',
-        )
-      ) {
-        return
-      }
-
-      const dx = t.clientX - touchX
-      const dy = t.clientY - touchY
-
-      if (horizontalRail(startEl) && Math.abs(dx) > Math.abs(dy)) return
-
-      // Prefer vertical scroll inside tall panels over deck change
-      if (isScrollableTarget(startEl) && Math.abs(dy) >= Math.abs(dx) * 0.85) {
-        return
-      }
-
-      if (Math.abs(dx) < 48) return
-      if (Math.abs(dx) < Math.abs(dy) * 1.15) return
-      if (dx < 0) next()
-      else prev()
-    }
+    const ignored = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest(IGNORE))
 
     const onPointerDown = (e: PointerEvent) => {
-      if (e.pointerType !== 'pen' && e.pointerType !== 'mouse') return
-      if (e.button !== 0) return
-      // Ignore UI controls
-      const el = e.target
-      if (el instanceof Element && el.closest('a, button, input, textarea, select, .nv-root, .section-dots, .wa-float, .clients-constellation-stage')) {
+      if (e.button !== 0 || locked) return
+      if (e.pointerType === 'mouse' && e.target instanceof Element && e.target.closest('a, button')) {
         return
       }
-      touchX = e.clientX
-      touchY = e.clientY
-      const onUp = (up: PointerEvent) => {
-        window.removeEventListener('pointerup', onUp)
-        if (locked || animating) return
-        const dx = up.clientX - touchX
-        const dy = up.clientY - touchY
-        if (Math.abs(dx) < 72) return
-        if (Math.abs(dx) < Math.abs(dy) * 1.2) return
-        if (dx < 0) next()
-        else prev()
+      if (ignored(e.target) || horizontalRail(e.target)) return
+      const origin = Number(gsap.getProperty(main, 'x')) || 0
+      drag = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        originX: origin,
+        targetX: origin,
+        lastX: e.clientX,
+        lastT: performance.now(),
+        velocity: 0,
+        axis: 'undecided',
+        target: e.target,
       }
-      window.addEventListener('pointerup', onUp)
+    }
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.pointerId) return
+      const dx = e.clientX - drag.startX
+      const dy = e.clientY - drag.startY
+
+      if (drag.axis === 'undecided') {
+        if (Math.hypot(dx, dy) < 8) return
+        if (Math.abs(dy) > Math.abs(dx) && isScrollableTarget(drag.target)) {
+          drag.axis = 'y'
+          return
+        }
+        if (Math.abs(dx) < Math.abs(dy) * 0.9) {
+          drag = null
+          return
+        }
+        drag.axis = 'x'
+        gsap.killTweensOf(main)
+        drag.originX = Number(gsap.getProperty(main, 'x')) || 0
+        drag.startX = e.clientX
+        drag.targetX = drag.originX
+        drag.lastX = e.clientX
+        drag.lastT = performance.now()
+      }
+
+      if (drag.axis !== 'x') return
+      if (e.cancelable) e.preventDefault()
+
+      const now = performance.now()
+      const dt = Math.max(8, now - drag.lastT)
+      drag.velocity = (e.clientX - drag.lastX) / dt
+      drag.lastX = e.clientX
+      drag.lastT = now
+
+      const nextX = resist(drag.originX + dx)
+      drag.targetX = nextX
+      xTo(nextX)
+      markHot(-nextX / width())
+    }
+
+    const finishDrag = (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.pointerId) return
+      const current = drag
+      drag = null
+      if (current.axis !== 'x') return
+
+      const w = width()
+      const progress = -current.targetX / w
+      let target: number
+      if (current.velocity < -0.42) target = Math.ceil(progress - 0.02)
+      else if (current.velocity > 0.42) target = Math.floor(progress + 0.02)
+      else target = Math.round(progress)
+      goTo(target)
     }
 
     const onAnchor = (e: MouseEvent) => {
@@ -273,14 +379,18 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     }
 
     const onResize = () => {
-      gsap.set(main, { x: -index * window.innerWidth })
+      scrollableCache = new WeakMap()
+      gsap.killTweensOf(main)
+      gsap.set(main, { x: -index * width(), force3D: true })
+      markHot(index)
     }
 
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('keydown', onKey)
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('pointermove', onPointerMove, { passive: false })
+    window.addEventListener('pointerup', finishDrag)
+    window.addEventListener('pointercancel', finishDrag)
     document.addEventListener('click', onAnchor)
     window.addEventListener('digitz:goto-section', onGoTo)
     window.addEventListener('digitz:scroll-lock', onLock)
@@ -302,11 +412,13 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       body.classList.remove('is-hdeck')
       gsap.killTweensOf(main)
       gsap.set(main, { clearProps: 'transform' })
+      panels().forEach((panel) => panel.classList.remove('is-deck-hot'))
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('keydown', onKey)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerup', finishDrag)
+      window.removeEventListener('pointercancel', finishDrag)
       document.removeEventListener('click', onAnchor)
       window.removeEventListener('digitz:goto-section', onGoTo)
       window.removeEventListener('digitz:scroll-lock', onLock)

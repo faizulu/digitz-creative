@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 import { services, servicesIntro } from '../../data/content'
+import { isCurrentDeckPanel } from '../../motion/panelActive'
 import { Container } from '../ui/Container'
 import { ActionWord } from '../ui/HeroActionText'
 
@@ -28,7 +29,8 @@ export function Services() {
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced || !animRootRef.current) return
-    const ctx = gsap.context(() => {
+    const section = animRootRef.current.closest('section')
+    const play = () => {
       gsap.fromTo(
         '.svc-stage-anim',
         { autoAlpha: 0, y: 16 },
@@ -41,8 +43,23 @@ export function Services() {
           overwrite: true,
         },
       )
+    }
+    const ctx = gsap.context(() => {
+      if (isCurrentDeckPanel(section instanceof HTMLElement ? section : null)) play()
     }, animRootRef)
-    return () => ctx.revert()
+
+    const onSnap = (e: Event) => {
+      const snapIndex = (e as CustomEvent<{ index: number }>).detail?.index
+      const main = document.getElementById('main')
+      if (!main || typeof snapIndex !== 'number' || !(section instanceof HTMLElement)) return
+      const deck = main.querySelectorAll(':scope > section, :scope > footer')
+      if (deck[snapIndex] === section) play()
+    }
+    window.addEventListener('digitz:section-snap', onSnap)
+    return () => {
+      window.removeEventListener('digitz:section-snap', onSnap)
+      ctx.revert()
+    }
   }, [active])
 
   return (

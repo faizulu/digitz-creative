@@ -2,8 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 const STORAGE_KEY = 'digitz-boot-seen'
-const MIN_MS = 900
-const MAX_MS = 3200
+const MIN_MS = 480
+const MAX_MS = 1100
 
 function hasSeenBoot(): boolean {
   try {
@@ -30,12 +30,13 @@ function removeSplash(): void {
   document.documentElement.classList.remove('is-booting')
 }
 
-async function waitForBootReady(startedAt: number): Promise<void> {
-  const fonts =
-    'fonts' in document
-      ? document.fonts.ready.catch(() => undefined)
-      : Promise.resolve()
+function signalBootDone(): void {
+  window.dispatchEvent(new Event('digitz:boot-done'))
+}
 
+async function waitForBootReady(startedAt: number): Promise<void> {
+  // Do not wait on document.fonts.ready. The font stylesheet is large and
+  // can hold the splash for minutes on a cold connection.
   const paint = new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => resolve())
@@ -51,7 +52,7 @@ async function waitForBootReady(startedAt: number): Promise<void> {
     window.setTimeout(resolve, MAX_MS)
   })
 
-  await Promise.race([Promise.all([fonts, paint, minHold]), maxHold])
+  await Promise.race([Promise.all([paint, minHold]), maxHold])
 }
 
 function BootMark() {
@@ -129,6 +130,7 @@ export function InitialLoader({ children }: InitialLoaderProps) {
   useEffect(() => {
     if (!active) {
       removeSplash()
+      signalBootDone()
       return
     }
 
@@ -150,6 +152,7 @@ export function InitialLoader({ children }: InitialLoaderProps) {
         if (cancelled) return
         markBootSeen()
         removeSplash()
+        signalBootDone()
         setActive(false)
         setNeedsPortal(false)
       }, 520)

@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { ArrowUpRight, MessageCircle } from 'lucide-react'
 import { RocketMark } from '../brand/RocketMark'
 import { founder } from '../../data/content'
+import { isCurrentDeckPanel } from '../../motion/panelActive'
 import { ActionWord } from '../ui/HeroActionText'
 
 const bridgeCraft = ['Content', 'Strategy', 'Growth'] as const
@@ -94,7 +95,7 @@ export function Founder() {
     }
 
     const ctx = gsap.context(() => {
-      play()
+      if (isCurrentDeckPanel(rootRef.current)) play()
     }, rootRef)
 
     const onSnap = (e: Event) => {
@@ -142,6 +143,9 @@ export function Founder() {
           </div>
 
           <div className="fd-trusted">
+            <p className="fd-trusted-label" aria-hidden>
+              {founder.trustedLabel}
+            </p>
             <ul className="fd-trusted-list" aria-label={founder.trustedLabel}>
               {founder.trustedBrands.map((brandName) => (
                 <li key={brandName} className="fd-trusted-item">

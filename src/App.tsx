@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react'
 import { Footer } from './components/layout/Footer'
 import { InitialLoader } from './components/layout/InitialLoader'
 import { Navigation } from './components/layout/Navigation'
@@ -9,6 +8,7 @@ import { Clients } from './components/sections/Clients'
 import { FinalCta } from './components/sections/FinalCta'
 import { Founder } from './components/sections/Founder'
 import { Gallery } from './components/sections/Gallery'
+import { GlassAgencyBackground } from './components/sections/GlassAgencyBackground'
 import { Hero } from './components/sections/Hero'
 import { Highlights } from './components/sections/Highlights'
 import { Packages } from './components/sections/Packages'
@@ -20,12 +20,6 @@ import { Why } from './components/sections/Why'
 import { GsapScrollRoot } from './motion/GsapScrollRoot'
 import { SmoothScroll } from './motion/SmoothScroll'
 
-const GlassAgencyBackground = lazy(() =>
-  import('./components/sections/GlassAgencyBackground').then((m) => ({
-    default: m.GlassAgencyBackground,
-  })),
-)
-
 export default function App() {
   return (
     <InitialLoader>
@@ -34,9 +28,7 @@ export default function App() {
           <a className="skip-link" href="#main">
             Skip to content
           </a>
-          <Suspense fallback={null}>
-            <GlassAgencyBackground />
-          </Suspense>
+          <GlassAgencyBackground />
           <div className="bg-noise" aria-hidden="true" />
           <div className="site-glass-foreground">
             <Navigation />

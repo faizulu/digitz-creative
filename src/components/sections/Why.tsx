@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type PointerEvent } from 'react'
 import gsap from 'gsap'
 import { why } from '../../data/content'
+import { isCurrentDeckPanel } from '../../motion/panelActive'
 import { ActionWord } from '../ui/HeroActionText'
 
 /** Soft pastel glass fills matching the staircase reference */
@@ -102,7 +103,7 @@ export function Why() {
     }
 
     const ctx = gsap.context(() => {
-      play()
+      if (isCurrentDeckPanel(rootRef.current)) play()
     }, rootRef)
 
     const onSnap = (e: Event) => {

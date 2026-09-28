@@ -6,7 +6,7 @@ import {
   type PointerEvent,
   type ReactNode,
 } from 'react'
-import { Shader, LiquidMetal, FlutedGlass, MeshGradient } from 'shaders/react'
+import { Shader, FlutedGlass, MeshGradient } from 'shaders/react'
 
 type MagicTone = 'warm' | 'cool'
 
@@ -58,7 +58,12 @@ export function MagicLiquidCard({
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const reducedGlass = window.matchMedia('(prefers-reduced-transparency: reduce)').matches
-    setShaderOn(active && !reducedMotion && !reducedGlass)
+    if (!active || reducedMotion || reducedGlass) {
+      setShaderOn(false)
+      return
+    }
+    const timer = window.setTimeout(() => setShaderOn(true), 520)
+    return () => window.clearTimeout(timer)
   }, [active])
 
   const onMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -90,42 +95,32 @@ export function MagicLiquidCard({
     >
       {shaderOn ? (
         <div className="magic-liquid-card-shader" aria-hidden>
-          <Shader className="magic-liquid-card-canvas">
-            <MeshGradient
-              colorA={t.meshA}
-              colorB={t.meshB}
-              count={5}
-              smoothness={2.4}
-              swirl={0.36}
-              drift={0.4}
-              speed={0.12}
-              seed={t.seed}
-            />
-            <LiquidMetal
-              lightColor={t.metalLight}
-              darkColor={t.metalDark}
-              turbulence={0.52}
-              ripple={2.4}
-              warp={0.72}
-              sharpness={0.24}
-              environment={0.95}
-              dispersion={0.32}
-              opacity={0.28}
-              speed={0.12}
-            />
-            <FlutedGlass
-              aberration={0.55}
-              angle={34}
-              frequency={6}
-              highlight={0.24}
-              highlightSoftness={0.36}
-              lightAngle={-58}
-              refraction={4}
-              shape="rounded"
-              softness={1}
-              speed={0.09}
-            />
-          </Shader>
+          <div className="magic-liquid-card-stage">
+            <Shader className="magic-liquid-card-canvas" disableTelemetry>
+              <MeshGradient
+                colorA={t.meshA}
+                colorB={t.meshB}
+                count={3}
+                smoothness={2.2}
+                swirl={0.28}
+                drift={0.28}
+                speed={0.08}
+                seed={t.seed}
+              />
+              <FlutedGlass
+                aberration={0.4}
+                angle={34}
+                frequency={5}
+                highlight={0.2}
+                highlightSoftness={0.36}
+                lightAngle={-58}
+                refraction={3}
+                shape="rounded"
+                softness={1}
+                speed={0.07}
+              />
+            </Shader>
+          </div>
         </div>
       ) : null}
 
