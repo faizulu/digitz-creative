@@ -89,9 +89,9 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 58%;
-  height: 58%;
-  transform: scale(1.7242);
+  width: 42%;
+  height: 42%;
+  transform: scale(2.381);
   transform-origin: 0 0;
   pointer-events: none;
 }
@@ -123,7 +123,6 @@ body {
     radial-gradient(ellipse 55% 45% at 88% 18%, rgb(86 194 252 / 0.18), transparent 48%),
     radial-gradient(ellipse 50% 40% at 72% 88%, rgb(88 184 50 / 0.12), transparent 50%),
     linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 35%, rgb(15 23 42 / 0.04));
-  mix-blend-mode: soft-light;
 }
 
 /* ?? Horizontal full-page deck (swipe left / right, no page scroll) ?? */
@@ -182,6 +181,11 @@ body.is-hdeck {
 
 .fullpage-main.hdeck-track > .is-deck-hot {
   content-visibility: visible;
+}
+
+.fullpage-main.hdeck-track > section:not(.is-deck-hot) *,
+.fullpage-main.hdeck-track > footer.ft-site:not(.is-deck-hot) * {
+  animation-play-state: paused !important;
 }
 
 .fullpage-main.hdeck-track > section > *,
@@ -263,9 +267,10 @@ body.is-hdeck {
 }
 
 .fullpage-main.hdeck-track > section.hero-liquid .hero-collage {
-  min-height: min(320px, 42dvh);
-  max-width: min(420px, 40vw);
-  height: min(340px, 44dvh);
+  width: 100%;
+  max-width: min(440px, 100%);
+  height: 460px;
+  min-height: 460px;
 }
 
 .fullpage-main.hdeck-track > section.hero-liquid .hero-trusted {
@@ -275,14 +280,16 @@ body.is-hdeck {
 }
 
 .fullpage-main.hdeck-track > section.hero-liquid .hero-collage-card--main {
-  padding: 0.85rem 1rem;
+  padding: 1.05rem 1.15rem 0.95rem;
 }
 
 .fullpage-main.hdeck-track > section.hero-liquid .hero-collage-quote {
-  font-size: clamp(0.92rem, 1.35vw, 1.1rem);
-  line-height: 1.35;
+  min-height: 0;
+  margin-top: 0.65rem;
+  font-size: clamp(0.95rem, 1.3vw, 1.08rem);
+  line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -321,10 +328,10 @@ body.is-hdeck {
   }
 
   .fullpage-main.hdeck-track > section.hero-liquid .hero-collage {
-    width: min(460px, 100%);
-    max-width: min(460px, 100%);
-    height: clamp(340px, 34dvh, 400px);
-    min-height: 0;
+    width: min(440px, 100%);
+    max-width: min(440px, 100%);
+    height: 460px;
+    min-height: 460px;
   }
 }
 
@@ -1783,10 +1790,8 @@ img.brand-logo-lg {
   position: relative;
   isolation: isolate;
   background:
-    linear-gradient(145deg, rgb(255 255 255 / 0.48), rgb(255 255 255 / 0.14)),
-    rgb(255 255 255 / 0.22);
-  backdrop-filter: blur(24px) saturate(175%) contrast(1.05);
-  -webkit-backdrop-filter: blur(24px) saturate(175%) contrast(1.05);
+    linear-gradient(145deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.46)),
+    rgb(255 255 255 / 0.55);
   border: 1px solid rgb(255 255 255 / 0.58);
   box-shadow:
     0 24px 48px -24px rgba(15, 23, 42, 0.28),
@@ -1812,14 +1817,20 @@ img.brand-logo-lg {
 .hero-collage {
   position: relative;
   width: 100%;
-  min-height: min(420px, 52dvh);
   margin-inline: auto;
-  max-width: 480px;
+  max-width: 440px;
 }
 
 .fullpage-main > section.hero-liquid .hero-collage {
-  min-height: min(320px, 42dvh);
-  max-width: min(420px, 40vw);
+  max-width: min(440px, 100%);
+}
+
+@media (min-width: 640px) {
+  .hero-collage,
+  .fullpage-main > section.hero-liquid .hero-collage {
+    height: 460px;
+    min-height: 460px;
+  }
 }
 
 .fullpage-main > section.hero-liquid .hero-trusted {
@@ -1827,10 +1838,9 @@ img.brand-logo-lg {
   padding-top: 0.65rem !important;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1023px) and (min-width: 640px) {
   .fullpage-main > section.hero-liquid .hero-collage {
-    max-width: 380px;
-    min-height: 280px;
+    max-width: min(440px, 100%);
   }
 }
 
@@ -1898,76 +1908,86 @@ img.brand-logo-lg {
 .hero-collage-card {
   position: absolute;
   border-radius: 1.25rem;
-  padding: 1rem 1.1rem;
+  padding: 0.85rem 0.95rem;
   z-index: 2;
+  background: #fff;
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow:
+    0 16px 36px -22px rgba(15, 23, 42, 0.28),
+    inset 0 1px 0 #fff;
 }
 
-.hero-collage-card--peek-a {
-  top: 2.5rem;
-  left: 12%;
-  width: 58%;
-  z-index: 1;
-  opacity: 0.55;
-  transform: rotate(-8deg) scale(0.92);
-}
+/* Desktop / tablet: four readable zones. Cards no longer share the quote. */
+@media (min-width: 640px) {
+  .hero-collage-card--peek-a {
+    top: 0;
+    left: 0;
+    width: 58%;
+    max-height: 5.6rem;
+    z-index: 1;
+    overflow: hidden;
+    transform: none;
+  }
 
-.hero-collage-card--peek-b {
-  top: 5rem;
-  right: 0;
-  width: 48%;
-  z-index: 2;
-  opacity: 0.65;
-  transform: rotate(7deg) scale(0.9);
-}
+  .hero-collage-card--peek-b {
+    top: 2.7rem;
+    right: 0;
+    width: 46%;
+    max-height: 4.6rem;
+    z-index: 2;
+    overflow: hidden;
+    transform: none;
+  }
 
-.hero-collage-card--left {
-  top: 11rem;
-  left: -2%;
-  width: 52%;
-  z-index: 4;
-  opacity: 0.88;
-  transform: rotate(-6deg);
-}
+  .hero-collage-card--main {
+    top: 8.6rem;
+    left: 0;
+    width: 100%;
+    z-index: 6;
+    transform: none;
+  }
 
-.hero-collage-card--right {
-  top: 14rem;
-  right: -4%;
-  width: 46%;
-  z-index: 5;
-  opacity: 0.9;
-  transform: rotate(5deg);
-}
+  .hero-collage-card--left,
+  .hero-collage-card--right {
+    top: auto;
+    bottom: 0;
+    width: calc(50% - 0.35rem);
+    max-height: 8.25rem;
+    overflow: hidden;
+    transform: none;
+    z-index: 4;
+  }
 
-.hero-collage-card--bottom {
-  bottom: 1.25rem;
-  left: 10%;
-  width: 62%;
-  z-index: 6;
-  opacity: 0.92;
-  transform: rotate(-3deg);
+  .hero-collage-card--left {
+    left: 0;
+  }
+
+  .hero-collage-card--right {
+    right: 0;
+    z-index: 5;
+  }
+
+  .hero-collage-card--bottom {
+    display: none;
+  }
 }
 
 .hero-collage-card--main {
-  top: 7.5rem;
-  left: 50%;
-  z-index: 20;
-  width: min(92%, 340px);
-  padding: 1.5rem 1.4rem 1.35rem;
-  background: rgba(255, 255, 255, 0.55);
-  transform: translateX(-50%);
+  z-index: 6;
+  padding: 1.15rem 1.2rem 1rem;
+  background: #fff;
   box-shadow:
-    0 32px 64px -28px rgba(15, 23, 42, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 22px 48px -28px rgba(15, 23, 42, 0.32),
+    inset 0 1px 0 #fff;
 }
 
 .hero-collage-quote {
-  margin: 0.85rem 0 0;
+  margin: 0.7rem 0 0;
   font-size: clamp(0.95rem, 1.5vw, 1.08rem);
-  font-weight: 500;
-  line-height: 1.45;
-  letter-spacing: -0.015em;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
   color: #1e293b;
-  min-height: 4.8rem;
 }
 
 .hero-collage-quote-sm {
@@ -2137,26 +2157,12 @@ img.brand-logo-lg {
     min-height: min(230px, 54dvh);
   }
 
+  .hero-collage-card--peek-a,
+  .hero-collage-card--peek-b,
   .hero-collage-card--left,
   .hero-collage-card--right,
   .hero-collage-card--bottom {
     display: none;
-  }
-
-  .hero-collage-card--peek-a {
-    top: 2rem;
-    left: 8%;
-    width: 66%;
-    padding: 0.7rem 0.8rem;
-    transform: rotate(-5deg) scale(0.94);
-  }
-
-  .hero-collage-card--peek-b {
-    top: 3.4rem;
-    right: 0;
-    width: 52%;
-    padding: 0.7rem 0.8rem;
-    transform: rotate(5deg) scale(0.92);
   }
 
   .hero-collage-rating {
@@ -2166,8 +2172,10 @@ img.brand-logo-lg {
   }
 
   .fullpage-main.hdeck-track > section.hero-liquid .hero-collage-card--main {
-    top: 4.8rem;
-    width: min(88%, 300px);
+    top: 2.75rem;
+    left: 0;
+    width: 100%;
+    transform: none;
     padding: 0.8rem 0.9rem 0.72rem;
   }
 
@@ -2993,9 +3001,7 @@ img.brand-logo-lg {
 }
 
 .impact-glass-card {
-  background: rgba(255, 255, 255, 0.42);
-  backdrop-filter: blur(20px) saturate(130%);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.55);
   border-radius: 0.85rem;
   box-shadow:
@@ -3007,7 +3013,36 @@ img.brand-logo-lg {
   transition:
     opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform, opacity;
+}
+
+.impact-atmos-orb {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.impact-atmos-orb--mint {
+  top: 25%;
+  right: 25%;
+  width: 20rem;
+  height: 20rem;
+  background: radial-gradient(circle, rgb(178 242 187 / 0.45), transparent 68%);
+}
+
+.impact-atmos-orb--blue {
+  top: 18%;
+  right: 1.5rem;
+  width: 16rem;
+  height: 16rem;
+  background: radial-gradient(circle, rgb(162 210 255 / 0.42), transparent 68%);
+}
+
+.impact-atmos-orb--peach {
+  right: 2.5rem;
+  bottom: 25%;
+  width: 18rem;
+  height: 18rem;
+  background: radial-gradient(circle, rgb(255 216 168 / 0.4), transparent 68%);
 }
 
 .impact-glass-card.is-in {
@@ -3125,10 +3160,8 @@ img.brand-logo-lg {
   border-radius: clamp(1.1rem, 2.2vw, 1.85rem);
   border: 1px solid rgb(255 236 246 / 0.58);
   background:
-    linear-gradient(145deg, rgb(242 232 251 / 0.42), rgb(250 216 208 / 0.28) 55%, rgb(232 244 255 / 0.22)),
-    rgb(248 242 252 / 0.3);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+    linear-gradient(145deg, rgb(242 232 251 / 0.78), rgb(250 216 208 / 0.62) 55%, rgb(232 244 255 / 0.55)),
+    rgb(248 242 252 / 0.72);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.6),
     inset 0 -1px 0 rgb(180 150 200 / 0.06),
@@ -3150,11 +3183,10 @@ img.brand-logo-lg {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgb(224 195 252 / 0.28) 0%,
+    rgb(224 195 252 / 0.34) 0%,
     rgb(250 208 196 / 0.16) 42%,
     transparent 72%
   );
-  filter: blur(28px);
 }
 
 .impact-magic-panel.is-in {
@@ -3600,9 +3632,7 @@ img.brand-logo-lg {
   position: absolute;
   border-radius: 28%;
   border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background: rgba(255, 255, 255, 0.28);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.65),
     0 24px 48px -28px rgba(15, 23, 42, 0.2);
@@ -3630,16 +3660,13 @@ img.brand-logo-lg {
   box-shadow:
     inset 0 4px 24px rgba(255, 255, 255, 0.6),
     0 24px 60px rgba(0, 0, 0, 0.06);
-  animation: impact-sphere-glow 10s ease-in-out infinite alternate;
 }
 
 .impact-core-sphere-frost {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 .impact-crystal {
@@ -4261,9 +4288,6 @@ img.brand-logo-lg {
     0 40px 80px -40px rgba(20, 30, 40, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
     inset 0 -20px 40px rgba(180, 200, 210, 0.12);
-  backdrop-filter: blur(18px) saturate(135%);
-  -webkit-backdrop-filter: blur(18px) saturate(135%);
-  animation: clients-orb-spin 36s linear infinite;
 }
 
 .clients-core-orb-rim {
@@ -4435,9 +4459,7 @@ img.brand-logo-lg {
   overflow: hidden;
   outline: none;
   cursor: default;
-  background: rgba(255, 255, 255, calc(var(--glass-a, 0.5) + 0.06));
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  background: rgba(255, 255, 255, calc(var(--glass-a, 0.5) + 0.32));
   border: 1px solid rgba(255, 255, 255, 0.65);
   box-shadow:
     0 20px 50px rgba(20, 30, 40, 0.06),
@@ -7128,9 +7150,7 @@ img.brand-logo-lg {
   min-height: 38px;
   border-radius: 999px;
   border: 1px solid rgb(255 255 255 / 0.72);
-  background: rgb(255 255 255 / 0.5);
-  backdrop-filter: blur(22px) saturate(170%);
-  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  background: rgb(255 255 255 / 0.78);
   color: #243044;
   font-size: 12px;
   font-weight: 600;
@@ -7238,9 +7258,7 @@ img.brand-logo-lg {
       rgb(255 255 255 / 0.24) 44%,
       rgb(236 244 255 / 0.3) 100%
     ),
-    rgb(255 255 255 / 0.18);
-  backdrop-filter: blur(36px) saturate(190%) contrast(1.04);
-  -webkit-backdrop-filter: blur(36px) saturate(190%) contrast(1.04);
+    rgb(255 255 255 / 0.72);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.9),
     inset 0 -1px 0 rgb(255 255 255 / 0.18),
@@ -7313,9 +7331,7 @@ img.brand-logo-lg {
   border: 1px solid rgb(255 255 255 / 0.78);
   background:
     linear-gradient(145deg, rgb(255 255 255 / 0.78), rgb(236 246 255 / 0.42)),
-    rgb(255 255 255 / 0.42);
-  backdrop-filter: blur(16px) saturate(170%);
-  -webkit-backdrop-filter: blur(16px) saturate(170%);
+    rgb(255 255 255 / 0.72);
   color: #1a4f72;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.92),
@@ -7402,9 +7418,7 @@ img.brand-logo-lg {
   border: 1px solid rgb(255 255 255 / 0.82);
   background:
     linear-gradient(145deg, rgb(255 255 255 / 0.78), rgb(236 246 255 / 0.38)),
-    rgb(255 255 255 / 0.4);
-  backdrop-filter: blur(18px) saturate(175%) contrast(1.04);
-  -webkit-backdrop-filter: blur(18px) saturate(175%) contrast(1.04);
+    rgb(255 255 255 / 0.72);
   color: #153a58;
   font-size: 11.5px;
   font-weight: 700;

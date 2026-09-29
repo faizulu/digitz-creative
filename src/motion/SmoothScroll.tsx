@@ -38,7 +38,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     let index = 0
     let locked = false
-    let hotCenter = -1
+    let hotKey = ''
     let wheelAcc = 0
     let wheelTimer = 0
     let wheelGate = 0
@@ -48,13 +48,14 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const width = () => window.innerWidth
     const minX = () => -(panels().length - 1) * width()
 
-    const markHot = (center: number) => {
+    const markHot = (center: number, spread: number) => {
       const list = panels()
       const c = Math.max(0, Math.min(list.length - 1, Math.round(center)))
-      if (c === hotCenter) return
-      hotCenter = c
+      const key = `${c}:${spread}:${list.length}`
+      if (key === hotKey) return
+      hotKey = key
       list.forEach((panel, i) => {
-        panel.classList.toggle('is-deck-hot', Math.abs(i - c) <= 1)
+        panel.classList.toggle('is-deck-hot', Math.abs(i - c) <= spread)
       })
     }
 
@@ -83,9 +84,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const from = index
       const changed = next !== from
       index = next
-      markHot(next)
       const distance = Math.abs(next - from)
       const duration = reduced || instant ? 0 : Math.min(1.05, 0.78 + distance * 0.04)
+      markHot(next, duration === 0 ? 0 : 1)
       if (duration === 0) {
         gsap.killTweensOf(main)
         gsap.set(main, { x: -next * width(), force3D: true })
@@ -101,6 +102,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         onStart: () => {
           if (changed) emit(index)
         },
+        onComplete: () => markHot(index, 0),
       })
     }
 
@@ -111,7 +113,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const hashIdx = panels().findIndex((p) => p.id === hash)
     if (hashIdx >= 0) index = hashIdx
     gsap.set(main, { x: -index * width(), force3D: true })
-    markHot(index)
+    markHot(index, 0)
     emit(index)
 
     const horizontalRail = (target: EventTarget | null) => {
@@ -334,7 +336,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       const nextX = resist(drag.originX + dx)
       drag.targetX = nextX
       xTo(nextX)
-      markHot(-nextX / width())
+      markHot(-nextX / width(), 1)
     }
 
     const finishDrag = (e: PointerEvent) => {
@@ -382,7 +384,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       scrollableCache = new WeakMap()
       gsap.killTweensOf(main)
       gsap.set(main, { x: -index * width(), force3D: true })
-      markHot(index)
+      markHot(index, 0)
     }
 
     window.addEventListener('wheel', onWheel, { passive: false })

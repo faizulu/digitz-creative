@@ -1,5 +1,11 @@
-import { motion, useReducedMotion } from 'framer-motion'
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+} from 'react'
 import { clientConstellation, clientsSection } from '../../data/content'
 import { Container } from '../ui/Container'
 import { HeroActionText } from '../ui/HeroActionText'
@@ -37,25 +43,90 @@ const CONSTELLATION_PATHS = [
   'M48 18 C 49 30, 50 38, 50 44',
 ] as const
 
-const FLOAT_META: Record<string, { duration: number; delay: number }> = {
-  '01': { duration: 4.2, delay: -1.1 },
-  '02': { duration: 3.6, delay: -0.4 },
-  '03': { duration: 4.8, delay: -2.2 },
-  '04': { duration: 3.4, delay: -1.6 },
-  '05': { duration: 4.5, delay: -0.8 },
-  '06': { duration: 3.8, delay: -2.8 },
-  '07': { duration: 5.0, delay: -1.9 },
-  '08': { duration: 3.5, delay: -0.2 },
-  '09': { duration: 4.1, delay: -2.5 },
-  '10': { duration: 3.7, delay: -1.3 },
-  '11': { duration: 4.6, delay: -0.6 },
-  '12': { duration: 3.9, delay: -2.0 },
-}
-
 function depthFromSize(size: 'primary' | 'secondary' | 'tertiary') {
   if (size === 'primary') return 'near'
   if (size === 'secondary') return 'mid'
   return 'far'
+}
+
+const SPOT_MS = 2800
+
+/** Phone / tablet: orb features one client at a time above a tappable brand cloud. */
+function ClientsSpotlight({ inView, reduceMotion }: { inView: boolean; reduceMotion: boolean }) {
+  const [active, setActive] = useState(0)
+  const featured = clientConstellation[active]
+
+  useEffect(() => {
+    if (!inView || reduceMotion) return
+    const t = window.setTimeout(
+      () => setActive((i) => (i + 1) % clientConstellation.length),
+      SPOT_MS,
+    )
+    return () => window.clearTimeout(t)
+  }, [active, inView, reduceMotion])
+
+  const onKey = (e: KeyboardEvent<HTMLLIElement>, i: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setActive(i)
+    }
+  }
+
+  return (
+    <div className="clients-spot" style={{ ['--spot-ms' as string]: `${SPOT_MS}ms` } as CSSProperties}>
+      <div className="clients-spot-stage">
+        <div className="clients-spot-orb" aria-hidden>
+          <div className="clients-core-ambient" />
+          <div className="clients-core-orb">
+            <span className="clients-core-orb-body" />
+            <span className="clients-core-orb-rim" />
+            <span className="clients-core-orb-core" />
+            <span className="clients-core-orb-shine" />
+            <span className="clients-core-orb-caustic" />
+          </div>
+          {!reduceMotion && inView ? (
+            <svg className="clients-spot-ring" viewBox="0 0 100 100" key={active}>
+              <circle cx="50" cy="50" r="48" pathLength={100} />
+            </svg>
+          ) : null}
+        </div>
+
+        <div className="clients-spot-feature" aria-live="polite">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={featured.id}
+              initial={reduceMotion ? false : { opacity: 0, y: 10, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={reduceMotion ? undefined : { opacity: 0, y: -10, filter: 'blur(6px)' }}
+              transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <p className="clients-spot-category">{featured.category}</p>
+              <p className="clients-spot-brand">{featured.brand}</p>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <ul className="clients-spot-cloud" aria-label="Client brands">
+        {clientConstellation.map((client, i) => (
+          <li
+            key={client.id}
+            role="button"
+            tabIndex={0}
+            aria-pressed={i === active}
+            className={`clients-spot-pill clients-spot-pill--${client.size} ${
+              i === active ? 'is-active' : ''
+            }`}
+            style={{ ['--stagger' as string]: `${80 + i * 45}ms` } as CSSProperties}
+            onClick={() => setActive(i)}
+            onKeyDown={(e) => onKey(e, i)}
+          >
+            {client.brand}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export function Clients() {
@@ -65,7 +136,9 @@ export function Clients() {
   const [hovered, setHovered] = useState<string | null>(null)
   const [inView, setInView] = useState(false)
   const [isFinePointer, setIsFinePointer] = useState(false)
-  const [isCompact, setIsCompact] = useState(false)
+  const [isCompact, setIsCompact] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches,
+  )
 
   useEffect(() => {
     const mq = window.matchMedia('(pointer: fine)')
@@ -160,6 +233,9 @@ export function Clients() {
             <p className="clients-constellation-support">{clientsSection.support}</p>
           </header>
 
+          {isCompact ? (
+            <ClientsSpotlight inView={inView} reduceMotion={Boolean(reduceMotion)} />
+          ) : (
           <div
             ref={stageRef}
             className={`clients-constellation-stage gs-scrub-fade ${isFinePointer && !reduceMotion ? 'has-cursor-light' : ''}`}
@@ -216,7 +292,6 @@ export function Clients() {
 
             {clientConstellation.map((client, i) => {
               const plane = depthFromSize(client.size)
-              const float = FLOAT_META[client.id] ?? { duration: 4, delay: -1 }
               const isActive = hovered === client.id
               const isRecessed = Boolean(hovered && hovered !== client.id)
 
@@ -242,21 +317,7 @@ export function Clients() {
                   onBlur={() => setHovered(null)}
                   tabIndex={0}
                 >
-                  <motion.div
-                    className="relative z-[1]"
-                    animate={reduceMotion || isCompact || isActive ? { y: 0 } : { y: [-5, 5] }}
-                    transition={
-                      reduceMotion
-                        ? { duration: 0 }
-                        : {
-                            duration: float.duration,
-                            delay: float.delay,
-                            ease: 'easeInOut',
-                            repeat: Infinity,
-                            repeatType: 'reverse',
-                          }
-                    }
-                  >
+                  <div className="relative z-[1]">
                     <span className="clients-glass-sheen" aria-hidden />
                     <p className="clients-glass-category">{client.category}</p>
                     <h3 className="clients-glass-brand">
@@ -265,11 +326,12 @@ export function Clients() {
                         →
                       </span>
                     </h3>
-                  </motion.div>
+                  </div>
                 </article>
               )
             })}
           </div>
+          )}
         </div>
       </Container>
     </section>

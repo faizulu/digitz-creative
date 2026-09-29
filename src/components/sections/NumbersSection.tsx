@@ -26,10 +26,7 @@ export function NumbersSection() {
       aria-labelledby="numbers-heading"
       className="impact-premium relative flex w-full items-center overflow-hidden"
     >
-      <MagicLiquidCard
-        active={inView}
-        className={`impact-magic-panel ${inView ? 'is-in' : ''}`}
-      >
+      <MagicLiquidCard className={`impact-magic-panel ${inView ? 'is-in' : ''}`}>
         <div
           className="pointer-events-none absolute inset-0 z-0 opacity-[0.18]"
           style={{
@@ -85,9 +82,9 @@ export function NumbersSection() {
           <div className="impact-premium-stage relative gs-reveal-item">
             <div className="impact-stage-fit">
             <div className="impact-premium-atmos pointer-events-none absolute inset-0 hidden lg:block" aria-hidden>
-              <div className="absolute top-1/4 right-1/4 h-80 w-80 rounded-full bg-[#B2F2BB]/[0.28] blur-[120px]" />
-              <div className="absolute right-6 top-[18%] h-64 w-64 rounded-full bg-[#A2D2FF]/[0.26] blur-[100px]" />
-              <div className="absolute right-10 bottom-1/4 h-72 w-72 rounded-full bg-[#FFD8A8]/[0.24] blur-[100px]" />
+              <div className="impact-atmos-orb impact-atmos-orb--mint" />
+              <div className="impact-atmos-orb impact-atmos-orb--blue" />
+              <div className="impact-atmos-orb impact-atmos-orb--peach" />
               <svg className="absolute inset-0 h-full w-full opacity-40">
                 <line
                   x1="8%"

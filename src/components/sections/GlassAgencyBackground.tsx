@@ -41,36 +41,26 @@ export function GlassAgencyBackground() {
 
   const Shader = mod?.Shader
   const Swirl = mod?.Swirl
-  const ChromaFlow = mod?.ChromaFlow
   const FlutedGlass = mod?.FlutedGlass
 
   return (
     <div className={`site-glass-shader${mod ? ' is-live' : ''}`} aria-hidden="true">
       <div className="site-glass-shader-fallback" />
-      {Shader && Swirl && ChromaFlow && FlutedGlass ? (
+      {Shader && Swirl && FlutedGlass ? (
         <div className="site-glass-shader-stage">
           <Shader className="site-glass-shader-canvas" disableTelemetry>
-            <Swirl colorA="#f8fbff" colorB="#e6f3fc" detail={0.9} />
-            <ChromaFlow
-              baseColor="#f2f8fd"
-              downColor="#58b832"
-              leftColor="#56c2fc"
-              rightColor="#1578b8"
-              upColor="#8fd0f4"
-              momentum={9}
-              radius={2.8}
-            />
+            <Swirl colorA="#f8fbff" colorB="#e6f3fc" detail={0.72} />
             <FlutedGlass
-              aberration={0.55}
+              aberration={0.35}
               angle={32}
-              frequency={6}
-              highlight={0.2}
-              highlightSoftness={0.28}
+              frequency={4}
+              highlight={0.16}
+              highlightSoftness={0.34}
               lightAngle={-72}
-              refraction={3.4}
+              refraction={2.2}
               shape="rounded"
               softness={1}
-              speed={0.08}
+              speed={0.05}
             />
           </Shader>
         </div>
