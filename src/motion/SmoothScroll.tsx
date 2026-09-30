@@ -69,6 +69,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       }
     }
 
+    const setMoving = (on: boolean) => {
+      root.classList.toggle('is-deck-moving', on)
+    }
+
     const xTo = gsap.quickTo(main, 'x', { duration: 0.34, ease: 'power3.out' })
 
     const resist = (x: number) => {
@@ -79,7 +83,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     }
 
     const goTo = (i: number, instant = false) => {
-      if (locked) return
+      if (locked) {
+        setMoving(false)
+        return
+      }
       const next = clamp(i)
       const from = index
       const changed = next !== from
@@ -90,9 +97,11 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       if (duration === 0) {
         gsap.killTweensOf(main)
         gsap.set(main, { x: -next * width(), force3D: true })
+        setMoving(false)
         if (changed) emit(next)
         return
       }
+      setMoving(true)
       gsap.to(main, {
         x: () => -index * width(),
         duration,
@@ -102,7 +111,10 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         onStart: () => {
           if (changed) emit(index)
         },
-        onComplete: () => markHot(index, 0),
+        onComplete: () => {
+          setMoving(false)
+          markHot(index, 0)
+        },
       })
     }
 
@@ -316,6 +328,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
           return
         }
         drag.axis = 'x'
+        setMoving(true)
         gsap.killTweensOf(main)
         drag.originX = Number(gsap.getProperty(main, 'x')) || 0
         drag.startX = e.clientX
@@ -384,6 +397,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       scrollableCache = new WeakMap()
       gsap.killTweensOf(main)
       gsap.set(main, { x: -index * width(), force3D: true })
+      setMoving(false)
       markHot(index, 0)
     }
 
@@ -410,7 +424,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     return () => {
       window.clearTimeout(wheelTimer)
-      root.classList.remove('is-hdeck')
+      root.classList.remove('is-hdeck', 'is-deck-moving')
       body.classList.remove('is-hdeck')
       gsap.killTweensOf(main)
       gsap.set(main, { clearProps: 'transform' })

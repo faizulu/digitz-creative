@@ -27,6 +27,7 @@ export function MagicLiquidCard({
   const ref = useRef<HTMLDivElement>(null)
 
   const onMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (document.documentElement.classList.contains('is-deck-moving')) return
     const el = ref.current
     if (!el) return
     const r = el.getBoundingClientRect()

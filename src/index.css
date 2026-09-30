@@ -188,6 +188,26 @@ body.is-hdeck {
   animation-play-state: paused !important;
 }
 
+/* While the deck is moving, fixed blurs must re-sample every frame.
+   Drop them for the gesture, then restore glass when the panel settles. */
+html.is-deck-moving .nv-core,
+html.is-deck-moving .nv-shell.is-dense .nv-core,
+html.is-deck-moving .pg-dock-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgb(255 255 255 / 0.94) !important;
+  transition: none !important;
+}
+
+html.is-deck-moving .fullpage-main.hdeck-track * {
+  animation-play-state: paused !important;
+}
+
+html.is-deck-moving .magic-liquid-card-sheen,
+html.is-deck-moving .why-apple-row-sheen {
+  mix-blend-mode: normal;
+}
+
 .fullpage-main.hdeck-track > section > *,
 .fullpage-main.hdeck-track > footer.ft-site > * {
   min-height: 0;
@@ -1543,8 +1563,7 @@ img.brand-logo-lg {
   position: fixed;
   inset: 0;
   z-index: 50;
-  opacity: 0.03;
-  mix-blend-mode: multiply;
+  opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -2861,12 +2880,8 @@ img.brand-logo-lg {
 }
 
 .fullpage-main.hdeck-track > section.impact-premium {
-  justify-content: flex-start;
-  align-items: stretch;
-  padding-top: clamp(5.75rem, 9.5vh, 7.25rem);
-  padding-bottom: var(--pg-dock-gap);
-  padding-left: clamp(0.85rem, 3vw, 1.75rem);
-  padding-right: clamp(0.85rem, 3vw, 1.75rem);
+  justify-content: center;
+  align-items: center;
 }
 
 .impact-premium-layout {
@@ -3001,13 +3016,13 @@ img.brand-logo-lg {
 }
 
 .impact-glass-card {
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: #fffcfe;
+  border: 1px solid rgb(255 255 255 / 0.96);
   border-radius: 0.85rem;
   box-shadow:
-    0 4px 30px rgba(0, 0, 0, 0.02),
-    0 20px 40px -24px rgba(15, 23, 42, 0.18),
-    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    0 10px 28px rgb(150 90 130 / 0.1),
+    0 1px 2px rgb(90 50 80 / 0.04);
   opacity: 0;
   transform: translateY(16px);
   transition:
@@ -3158,10 +3173,9 @@ img.brand-logo-lg {
   flex: 1 1 auto;
   align-self: stretch;
   border-radius: clamp(1.1rem, 2.2vw, 1.85rem);
-  border: 1px solid rgb(255 236 246 / 0.58);
+  border: 1px solid rgb(255 255 255 / 0.82);
   background:
-    linear-gradient(145deg, rgb(242 232 251 / 0.78), rgb(250 216 208 / 0.62) 55%, rgb(232 244 255 / 0.55)),
-    rgb(248 242 252 / 0.72);
+    linear-gradient(155deg, #fff5fb 0%, #ffd6ec 34%, #f3dcff 66%, #e7f2ff 100%);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.6),
     inset 0 -1px 0 rgb(180 150 200 / 0.06),
@@ -3183,10 +3197,57 @@ img.brand-logo-lg {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgb(224 195 252 / 0.34) 0%,
-    rgb(250 208 196 / 0.16) 42%,
+    rgb(255 170 210 / 0.45) 0%,
+    rgb(255 196 170 / 0.22) 42%,
     transparent 72%
   );
+}
+
+.impact-magic-panel > .magic-liquid-card-frost {
+  background:
+    linear-gradient(
+      160deg,
+      rgb(255 255 255 / 0.38) 0%,
+      rgb(255 210 228 / 0.1) 48%,
+      rgb(255 255 255 / 0.16) 100%
+    );
+}
+
+.impact-grid {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.7;
+  background-image:
+    linear-gradient(to right, rgb(214 140 176 / 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(214 140 176 / 0.22) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.impact-watermark {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 0;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-sans);
+  font-size: clamp(3.75rem, 5.4vw, 6.15rem);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.065em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgb(196 72 128 / 0.42);
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (max-width: 639px) {
+  .impact-watermark {
+    display: none;
+  }
 }
 
 .impact-magic-panel.is-in {
@@ -3545,10 +3606,6 @@ img.brand-logo-lg {
 }
 
 @media (max-width: 639px) {
-  .fullpage-main.hdeck-track > section.impact-premium {
-    padding-bottom: calc(var(--pg-dock-gap) + 4.25rem);
-  }
-
   /* Phone: 2x2 glass grid over the sphere, no overlapping cards */
   .impact-premium-stage {
     display: block;
@@ -3666,31 +3723,30 @@ img.brand-logo-lg {
   position: absolute;
   inset: 0;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0.05) 46%, rgb(255 255 255 / 0.12));
 }
 
 .impact-crystal {
   position: absolute;
   z-index: 3;
-  width: 28px;
-  height: 28px;
-  background: linear-gradient(135deg, #a2d2ff, #ffd8a8, #b2f2bb);
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #7ee0a4, #ffe08a);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  opacity: 0.9;
-  filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.15));
 }
 
 .impact-crystal--a {
-  top: 6%;
-  right: 8%;
+  top: -4%;
+  right: 4%;
   animation: impact-crystal-float 7s ease-in-out infinite;
 }
 
 .impact-crystal--b {
-  top: 18%;
-  right: -2%;
-  width: 18px;
-  height: 18px;
+  top: 10%;
+  right: -10%;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, #ffc48a, #d7c4ff);
   animation: impact-crystal-float 9s ease-in-out 1s infinite reverse;
 }
 
@@ -9568,7 +9624,6 @@ a.ct-detail:hover {
     0 4px 14px rgb(21 120 184 / 0.08);
   transition:
     background 0.55s var(--nv-ease),
-    backdrop-filter 0.55s var(--nv-ease),
     border-color 0.55s var(--nv-ease),
     box-shadow 0.55s var(--nv-ease);
 }
@@ -11296,7 +11351,7 @@ a.ct-detail:hover {
   letter-spacing: -0.03em;
 }
 
-/* —— Unique section hero faces (Hero + Numbers untouched) —— */
+/* —— Unique section hero faces (Hero + Numbers share Syne) —— */
 .services-liquid-title {
   font-family: var(--font-hero-services);
 }
@@ -11341,6 +11396,458 @@ a.ct-detail:hover {
 
 .ct-title {
   font-family: var(--font-hero-contact);
+}
+
+/* Section 02 — liquid-glass lens. Same material as the hero cards:
+   layered fill, rim light, inset highlight. No live blur on the lens. */
+.fullpage-main.hdeck-track > section.impact-poster {
+  justify-content: center;
+  align-items: center;
+}
+
+.fullpage-main.hdeck-track > section.impact-poster > .impact-lens-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(300px, 1.1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  width: min(1240px, 100%);
+  max-width: min(1240px, 100%);
+  max-height: 100%;
+  margin-inline: auto;
+}
+
+.impact-poster-kicker {
+  margin: 0 0 0.85rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(15 23 42 / 0.48);
+}
+
+.impact-poster-title,
+.impact-chip-value {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+.impact-poster-title {
+  margin: 0;
+  max-width: 11em;
+  font-size: clamp(2.15rem, 3.6vw, 3.55rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: #0f0f0f;
+}
+
+.impact-poster-title-line {
+  display: block;
+  margin-top: 0.08em;
+  padding-bottom: 0.08em;
+  color: #1578b8;
+}
+
+.impact-poster-support {
+  max-width: 34ch;
+  margin: 1.05rem 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgb(15 23 42 / 0.62);
+}
+
+.impact-poster-note {
+  max-width: 38ch;
+  margin: 0.85rem 0 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  color: rgb(15 23 42 / 0.42);
+}
+
+.impact-lens-fit {
+  display: contents;
+}
+
+.impact-lens {
+  position: relative;
+  height: min(440px, 58vh);
+  min-height: 380px;
+  border-radius: 2.4rem;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background:
+    linear-gradient(155deg, rgb(255 255 255 / 0.58), rgb(214 236 255 / 0.22) 46%, rgb(198 236 186 / 0.28)),
+    rgb(255 255 255 / 0.2);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.92),
+    inset 0 -20px 36px rgb(21 120 184 / 0.05),
+    0 28px 60px -30px rgb(30 70 110 / 0.28);
+  overflow: hidden;
+}
+
+.impact-lens-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgb(255 255 255 / 0.5), transparent 38%);
+}
+
+.impact-lens-colors {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.impact-lens-color {
+  position: absolute;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  animation: impact-color-drift 16s ease-in-out infinite;
+}
+
+.impact-lens-color--mint {
+  top: 8%;
+  left: 6%;
+  background: radial-gradient(circle, rgb(120 214 140 / 0.55), transparent 68%);
+}
+
+.impact-lens-color--cyan {
+  top: 18%;
+  right: 0;
+  background: radial-gradient(circle, rgb(110 186 245 / 0.5), transparent 68%);
+  animation-duration: 19s;
+  animation-direction: alternate-reverse;
+}
+
+.impact-lens-color--peach {
+  bottom: 0;
+  left: 28%;
+  background: radial-gradient(circle, rgb(255 196 140 / 0.5), transparent 68%);
+  animation-duration: 22s;
+  animation-delay: -6s;
+}
+
+@keyframes impact-color-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(28px, -22px, 0) scale(1.08);
+  }
+}
+
+.impact-lens-orb {
+  position: absolute;
+  z-index: 1;
+  left: 54%;
+  top: 40%;
+  width: min(250px, 52%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.impact-lens-shell {
+  position: absolute;
+  border-radius: 30%;
+  border: 1px solid rgb(255 255 255 / 0.72);
+  background: rgb(255 255 255 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85);
+}
+
+.impact-lens-shell--a {
+  inset: -10%;
+  transform: rotate(10deg);
+}
+
+.impact-lens-shell--b {
+  inset: 8%;
+  transform: rotate(-8deg);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.impact-lens-sphere {
+  position: absolute;
+  inset: 16%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #d7f3ea;
+  box-shadow:
+    inset 0 10px 22px rgb(255 255 255 / 0.7),
+    0 16px 36px rgb(21 120 184 / 0.14);
+}
+
+.impact-lens-sphere::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background: conic-gradient(from 40deg, #9eecc0, #7ec4ff, #ffd0a4, #b7f0d4, #9eecc0);
+  animation: impact-sphere-turn 22s linear infinite;
+}
+
+.impact-lens-sphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.72), transparent 42%);
+}
+
+@keyframes impact-sphere-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.impact-lens-gem {
+  position: absolute;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #7ee0a4, #ffe08a);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.impact-lens-gem--a {
+  top: 2%;
+  right: 6%;
+}
+
+.impact-lens-gem--b {
+  top: 16%;
+  right: -4%;
+  width: 11px;
+  height: 11px;
+  background: linear-gradient(135deg, #ffc48a, #d4c6ff);
+}
+
+.impact-lens-chips {
+  display: contents;
+}
+
+.impact-chip {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem 0.7rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgb(255 255 255 / 0.82);
+  background:
+    linear-gradient(160deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.62));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    0 16px 30px -18px rgb(20 50 80 / 0.32);
+}
+
+.impact-chip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.45), transparent 42%);
+  pointer-events: none;
+}
+
+.impact-chip > * {
+  position: relative;
+  z-index: 1;
+}
+
+.impact-chip-kicker {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(15 23 42 / 0.42);
+}
+
+.impact-chip-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #0f0f0f;
+}
+
+.impact-chip-value--lead {
+  font-size: clamp(1.85rem, 2.8vw, 2.45rem);
+}
+
+.impact-chip-currency {
+  margin-right: 0.02em;
+  font-weight: 600;
+}
+
+.impact-chip-label {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgb(15 23 42 / 0.55);
+}
+
+.impact-chip--clients {
+  top: 7%;
+  left: 4%;
+  width: 9.4rem;
+  rotate: -3deg;
+  animation: impact-chip-float 7.5s ease-in-out infinite;
+}
+
+@keyframes impact-chip-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+.impact-chip--lead {
+  left: 5%;
+  bottom: 7%;
+  width: min(15.5rem, 54%);
+  rotate: -1.5deg;
+  animation: impact-chip-float 9s ease-in-out -2s infinite;
+}
+
+.impact-chip--revenue {
+  top: 16%;
+  right: 4%;
+  width: 11rem;
+  rotate: 2.5deg;
+  animation: impact-chip-float 8.2s ease-in-out -4s infinite;
+}
+
+.impact-chip--hours {
+  right: 5%;
+  bottom: 12%;
+  width: 8.6rem;
+  rotate: 4deg;
+  background:
+    linear-gradient(160deg, rgb(255 255 255 / 0.82), rgb(198 236 176 / 0.72));
+  animation: impact-chip-float 8.8s ease-in-out -1s infinite;
+}
+
+/* Phone + tablet: same lens composition, scaled to the space under the nav and above the dock. */
+@media (max-width: 1023px) {
+  .fullpage-main.hdeck-track > section.impact-poster > .impact-lens-layout {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(0.7rem, 2vw, 1.25rem);
+    align-items: center;
+  }
+
+  .impact-poster-kicker {
+    margin-bottom: 0.4rem;
+  }
+
+  .impact-poster-title {
+    max-width: none;
+    font-size: clamp(1.45rem, 2.7vw, 2.15rem);
+  }
+
+  .impact-poster-support {
+    margin-top: 0.45rem;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .impact-poster-note {
+    margin-top: 0.35rem;
+  }
+
+  .impact-lens-fit {
+    display: block;
+    position: relative;
+    container-type: size;
+    width: 100%;
+    aspect-ratio: 640 / 420;
+    max-height: 58dvh;
+    overflow: hidden;
+  }
+
+  .impact-lens-fit > .impact-lens {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 640px;
+    height: 420px;
+    min-height: 0;
+    transform-origin: top center;
+    transform: translateX(-50%) scale(
+      min(calc(100cqi / 640px), calc(100cqb / 420px))
+    );
+  }
+}
+
+@media (max-width: 759px) {
+  .fullpage-main.hdeck-track > section.impact-poster > .impact-lens-layout {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .impact-poster-title {
+    font-size: clamp(1.4rem, 6.2vw, 1.85rem);
+  }
+
+  .impact-poster-support {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .impact-lens-fit {
+    max-height: min(52dvh, calc(100dvh - 16.5rem));
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 700px) {
+  .impact-poster-note {
+    display: none;
+  }
+
+  .impact-poster-support {
+    margin-top: 0.3rem;
+  }
+
+  .impact-lens-fit {
+    max-height: 46dvh;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .impact-lens,
+  .impact-chip,
+  .impact-chip--hours {
+    background: #fff;
+  }
+
+  .impact-lens-shine,
+  .impact-lens-shell,
+  .impact-lens-colors {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .impact-lens-color,
+  .impact-lens-sphere::before,
+  .impact-chip--clients,
+  .impact-chip--lead,
+  .impact-chip--revenue,
+  .impact-chip--hours {
+    animation: none;
+  }
 }
 
 /* —— Action word: 3D model extrusion glyph —— */

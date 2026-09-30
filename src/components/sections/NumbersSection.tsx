@@ -1,231 +1,136 @@
-import { useCountUp, useInViewOnce } from '../../hooks/useCountUp'
+import { useEffect, useRef } from 'react'
+import { useInViewOnce } from '../../hooks/useCountUp'
 import { impactMetrics, impactSection } from '../../data/content'
-import { MagicLiquidCard } from '../ui/MagicLiquidCard'
 
 function formatInt(n: number) {
   return `${n.toLocaleString('en-IN')}+`
 }
 
-const clientAvatars = [
-  'https://i.pravatar.cc/48?img=12',
-  'https://i.pravatar.cc/48?img=32',
-  'https://i.pravatar.cc/48?img=47',
-  'https://i.pravatar.cc/48?img=5',
-]
+function formatRevenue(n: number) {
+  return n >= 100 ? '1Cr+' : `${(n / 100).toFixed(1)}Cr`
+}
+
+/** Writes the number into the DOM so the count-up does not re-render the panel. */
+function CountLabel({
+  target,
+  active,
+  duration = 1400,
+  format,
+}: {
+  target: number
+  active: boolean
+  duration?: number
+  format: (n: number) => string
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !active) return
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      el.textContent = format(target)
+      return
+    }
+
+    const start = performance.now()
+    let raf = 0
+    let cancelled = false
+    const tick = (now: number) => {
+      if (cancelled) return
+      const t = Math.min(1, (now - start) / duration)
+      const eased = 1 - (1 - t) ** 3
+      el.textContent = format(Math.round(target * eased))
+      if (t < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+    }
+  }, [active, duration, format, target])
+
+  return <span ref={ref}>{format(0)}</span>
+}
 
 export function NumbersSection() {
-  const { ref, inView } = useInViewOnce<HTMLElement>(0.12)
-  const clients = useCountUp(impactMetrics[0].target, inView)
-  const leads = useCountUp(impactMetrics[1].target, inView, 1600)
-  const revenue = useCountUp(100, inView, 1200)
+  const { ref, inView } = useInViewOnce<HTMLElement>(0.2)
 
   return (
     <section
       ref={ref}
       id="numbers"
       aria-labelledby="numbers-heading"
-      className="impact-premium relative flex w-full items-center overflow-hidden"
+      className="impact-premium impact-poster relative flex w-full items-center"
     >
-      <MagicLiquidCard className={`impact-magic-panel ${inView ? 'is-in' : ''}`}>
-        <div
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.18]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(140, 130, 122, 0.15) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(140, 130, 122, 0.15) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-          }}
-          aria-hidden
-        />
-
-        <div
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-0 hidden -translate-y-1/2 justify-end pr-6 select-none sm:pr-10 lg:flex lg:pr-16"
-          aria-hidden
-        >
-          <p className="text-[clamp(5rem,17vw,14rem)] leading-none font-black tracking-tighter text-[#1C1A17]/[0.028] uppercase">
-            Impact
-          </p>
+      <div className="impact-lens-layout">
+        <div className="impact-poster-copy gs-reveal">
+          <p className="impact-poster-kicker">{impactSection.eyebrow}</p>
+          <h2 id="numbers-heading" className="impact-poster-title">
+            {impactSection.titleLine1}
+            <span className="impact-poster-title-line">{impactSection.titleLine2}</span>
+          </h2>
+          <p className="impact-poster-support">{impactSection.support}</p>
+          <p className="impact-poster-note">* {impactSection.note}</p>
         </div>
 
-        <div className="impact-premium-layout relative z-10 mx-auto grid w-full max-w-[1400px] items-start lg:items-center">
-          <div className="impact-premium-copy relative flex flex-col justify-center gs-reveal">
-            <div className="impact-premium-kicker flex items-center space-x-3">
-              <span className="font-mono text-[10px] font-semibold tracking-[0.25em] text-indigo-700 uppercase">
-                {impactSection.eyebrow}
-              </span>
-              <div className="h-px w-12 bg-indigo-200" />
-            </div>
-
-            <h2
-              id="numbers-heading"
-              className="impact-premium-title font-medium tracking-tight text-[#1A1816]"
-            >
-              {impactSection.titleLine1}
-              <br />
-              <span className="impact-premium-accent font-normal tracking-normal text-indigo-950 italic">
-                {impactSection.titleLine2}
-              </span>
-            </h2>
-
-            <div className="impact-premium-support max-w-sm border-l border-gray-300 pl-4 sm:pl-5">
-              <p className="text-[13px] leading-snug text-[#55504C] sm:text-sm sm:leading-relaxed">
-                {impactSection.support}
-              </p>
-            </div>
-
-            <p className="impact-premium-note font-mono text-[10px] text-gray-400">
-              * {impactSection.note}
-            </p>
+        <div className="impact-lens-fit">
+        <div className="impact-lens gs-reveal-item">
+          <div className="impact-lens-shine" aria-hidden />
+          <div className="impact-lens-colors" aria-hidden>
+            <span className="impact-lens-color impact-lens-color--mint" />
+            <span className="impact-lens-color impact-lens-color--cyan" />
+            <span className="impact-lens-color impact-lens-color--peach" />
+          </div>
+          <div className="impact-lens-orb" aria-hidden>
+            <span className="impact-lens-shell impact-lens-shell--a" />
+            <span className="impact-lens-shell impact-lens-shell--b" />
+            <span className="impact-lens-sphere" />
+            <span className="impact-lens-gem impact-lens-gem--a" />
+            <span className="impact-lens-gem impact-lens-gem--b" />
           </div>
 
-          <div className="impact-premium-stage relative gs-reveal-item">
-            <div className="impact-stage-fit">
-            <div className="impact-premium-atmos pointer-events-none absolute inset-0 hidden lg:block" aria-hidden>
-              <div className="impact-atmos-orb impact-atmos-orb--mint" />
-              <div className="impact-atmos-orb impact-atmos-orb--blue" />
-              <div className="impact-atmos-orb impact-atmos-orb--peach" />
-              <svg className="absolute inset-0 h-full w-full opacity-40">
-                <line
-                  x1="8%"
-                  y1="48%"
-                  x2="42%"
-                  y2="28%"
-                  stroke="#9CA3AF"
-                  strokeWidth="1"
-                  strokeDasharray="3 5"
+          <div className="impact-lens-chips">
+            <article className="impact-chip impact-chip--clients">
+              <span className="impact-chip-kicker">01 · {impactMetrics[0].label}</span>
+              <span className="impact-chip-value">
+                <CountLabel target={impactMetrics[0].target} active={inView} format={formatInt} />
+              </span>
+              <span className="impact-chip-label">{impactMetrics[0].description}</span>
+            </article>
+
+            <article className="impact-chip impact-chip--lead">
+              <span className="impact-chip-kicker">02 · {impactMetrics[1].label}</span>
+              <span className="impact-chip-value impact-chip-value--lead">
+                <CountLabel
+                  target={impactMetrics[1].target}
+                  active={inView}
+                  duration={1600}
+                  format={formatInt}
                 />
-                <line
-                  x1="8%"
-                  y1="48%"
-                  x2="72%"
-                  y2="42%"
-                  stroke="#9CA3AF"
-                  strokeWidth="1"
-                  strokeDasharray="3 5"
-                />
-                <line
-                  x1="8%"
-                  y1="48%"
-                  x2="48%"
-                  y2="78%"
-                  stroke="#9CA3AF"
-                  strokeWidth="1"
-                  strokeDasharray="3 5"
-                />
-              </svg>
-            </div>
+              </span>
+              <span className="impact-chip-label">{impactMetrics[1].description}</span>
+            </article>
 
-            <div className="impact-core relative z-[1] hidden lg:grid">
-              <div className="impact-core-shell impact-core-shell--outer" aria-hidden />
-              <div className="impact-core-shell impact-core-shell--inner" aria-hidden />
-              <div className="impact-core-sphere">
-                <div className="impact-core-sphere-frost" aria-hidden />
-              </div>
-              <span className="impact-crystal impact-crystal--a" aria-hidden />
-              <span className="impact-crystal impact-crystal--b" aria-hidden />
-            </div>
+            <article className="impact-chip impact-chip--revenue">
+              <span className="impact-chip-kicker">03 · {impactMetrics[2].label}</span>
+              <span className="impact-chip-value">
+                <span className="impact-chip-currency">₹</span>
+                <CountLabel target={100} active={inView} duration={1200} format={formatRevenue} />
+              </span>
+              <span className="impact-chip-label">{impactMetrics[2].description}</span>
+            </article>
 
-            <div
-              className={`impact-glass-card impact-card impact-card--clients ${inView ? 'is-in' : ''}`}
-              style={{ transitionDelay: inView ? '80ms' : '0ms' }}
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <span className="font-mono text-[9px] tracking-widest text-gray-400 uppercase">
-                  01. {impactMetrics[0].label}
-                </span>
-                <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 font-mono text-[10px] font-medium text-emerald-700">
-                  +14%
-                </span>
-              </div>
-              <h3 className="impact-card-value font-bold tracking-tight text-gray-900">
-                {formatInt(clients)}
-              </h3>
-              <p className="impact-card-desc mt-1 text-[11px] text-gray-500">
-                {impactMetrics[0].description}
-              </p>
-              <div className="impact-card-extra mt-3 flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {clientAvatars.map((src) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt=""
-                      className="h-6 w-6 rounded-full border-2 border-white object-cover"
-                      loading="lazy"
-                    />
-                  ))}
-                </div>
-                <span className="text-[9px] font-medium text-gray-500">12% Growth this Mo.</span>
-              </div>
-            </div>
-
-            <div
-              className={`impact-glass-card impact-card impact-card--pipeline ${inView ? 'is-in' : ''}`}
-              style={{ transitionDelay: inView ? '160ms' : '0ms' }}
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <span className="font-mono text-[9px] tracking-widest text-gray-400 uppercase">
-                  02. {impactMetrics[1].label}
-                </span>
-                <span className="font-mono text-[9px] text-gray-400">Live Sync</span>
-              </div>
-              <h3 className="impact-card-value font-bold tracking-tight text-gray-900">
-                {formatInt(leads)}
-              </h3>
-              <p className="impact-card-desc mt-1 text-[11px] text-gray-500">
-                {impactMetrics[1].description}
-              </p>
-              <svg
-                className="impact-card-extra mt-3 h-8 w-full"
-                viewBox="0 0 120 32"
-                aria-hidden
-              >
-                <polyline
-                  fill="none"
-                  stroke="#1578b8"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  points="0,24 20,20 40,22 60,12 80,14 100,6 120,8"
-                />
-              </svg>
-            </div>
-
-            <div
-              className={`impact-glass-card impact-card impact-card--revenue ${inView ? 'is-in' : ''}`}
-              style={{ transitionDelay: inView ? '240ms' : '0ms' }}
-            >
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <span className="font-mono text-[9px] tracking-widest text-gray-400 uppercase">
-                  03. {impactMetrics[2].label}
-                </span>
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-              </div>
-              <h3 className="impact-card-value flex items-center font-bold tracking-tight text-gray-900">
-                <span className="impact-card-currency mr-0.5 font-light text-gray-500">₹</span>
-                {revenue >= 100 ? '1Cr+' : `${(revenue / 100).toFixed(1)}Cr`}
-              </h3>
-              <p className="impact-card-desc mt-1 text-[11px] text-gray-500">
-                {impactMetrics[2].description}
-              </p>
-            </div>
-
-            <div
-              className={`impact-glass-card impact-card impact-card--efficiency ${inView ? 'is-in' : ''}`}
-              style={{ transitionDelay: inView ? '320ms' : '0ms' }}
-            >
-              <span className="font-mono text-[9px] text-gray-400 uppercase">04. Efficiency</span>
-              <span className="impact-card-value mt-0.5 block font-bold text-gray-900">75%</span>
-              <span className="impact-card-desc text-[10px] text-gray-500">Team Hours Saved</span>
-            </div>
-            </div>
+            <article className="impact-chip impact-chip--hours">
+              <span className="impact-chip-kicker">04 · Hours</span>
+              <span className="impact-chip-value">75%</span>
+              <span className="impact-chip-label">Team hours saved</span>
+            </article>
           </div>
         </div>
-      </MagicLiquidCard>
+        </div>
+      </div>
     </section>
   )
 }
