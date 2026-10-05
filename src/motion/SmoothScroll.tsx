@@ -13,7 +13,7 @@ type DigitzDeck = {
 }
 
 const IGNORE =
-  'a, button, input, textarea, select, .nv-root, .section-dots, .pg-dock, .wa-float'
+  'a, button, input, textarea, select, .nv-root, .section-dots, .pg-dock, .wa-float, .site-chat'
 
 /**
  * Horizontal full-page deck.
@@ -177,6 +177,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     }
 
     const onWheel = (e: WheelEvent) => {
+      if (e.target instanceof Element && e.target.closest('.site-chat')) return
       if (locked) {
         e.preventDefault()
         return
@@ -278,6 +279,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       startX: number
       startY: number
       originX: number
+      originScroll: number
       targetX: number
       lastX: number
       lastT: number
@@ -303,6 +305,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         startX: e.clientX,
         startY: e.clientY,
         originX: origin,
+        originScroll: 0,
         targetX: origin,
         lastX: e.clientX,
         lastT: performance.now(),
@@ -320,7 +323,12 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       if (drag.axis === 'undecided') {
         if (Math.hypot(dx, dy) < 8) return
         if (Math.abs(dy) > Math.abs(dx) && isScrollableTarget(drag.target)) {
+          const panel = panelOf(drag.target)
           drag.axis = 'y'
+          if (panel) {
+            gsap.killTweensOf(panel)
+            drag.originScroll = panel.scrollTop
+          }
           return
         }
         if (Math.abs(dx) < Math.abs(dy) * 0.9) {
@@ -335,6 +343,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         drag.targetX = drag.originX
         drag.lastX = e.clientX
         drag.lastT = performance.now()
+      }
+
+      if (drag.axis === 'y') {
+        const panel = panelOf(drag.target)
+        if (!panel) return
+        if (e.cancelable) e.preventDefault()
+        const max = Math.max(0, panel.scrollHeight - panel.clientHeight)
+        const nextTop = Math.max(0, Math.min(max, drag.originScroll - dy))
+        panel.scrollTop = nextTop
+        scrollIntent.set(panel, nextTop)
+        return
       }
 
       if (drag.axis !== 'x') return

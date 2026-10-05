@@ -162,6 +162,14 @@ export function Navigation() {
                 })}
               </nav>
 
+              <nav className="nv-links nv-links--tab" aria-label="Primary">
+                {megaNav.map((item) => (
+                  <a key={item.id} href={item.href} className="nv-link" onClick={closeSheet}>
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+
               <div className="nv-actions">
                 <a
                   href={whatsappUrl()}

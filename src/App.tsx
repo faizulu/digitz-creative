@@ -2,7 +2,7 @@ import { Footer } from './components/layout/Footer'
 import { InitialLoader } from './components/layout/InitialLoader'
 import { Navigation } from './components/layout/Navigation'
 import { SectionDots } from './components/layout/SectionDots'
-import { WhatsAppFloat } from './components/layout/WhatsAppFloat'
+import { SiteChat } from './components/layout/SiteChat'
 import { CaseStudies } from './components/sections/CaseStudies'
 import { Clients } from './components/sections/Clients'
 import { FinalCta } from './components/sections/FinalCta'
@@ -50,7 +50,7 @@ export default function App() {
               <Footer />
             </main>
           </div>
-          <WhatsAppFloat />
+          <SiteChat />
         </SmoothScroll>
       </GsapScrollRoot>
     </InitialLoader>
