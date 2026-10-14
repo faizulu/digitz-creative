@@ -232,6 +232,7 @@ html.is-deck-moving .why-apple-row-sheen {
 .fullpage-main.hdeck-track > section.contact-section,
 .fullpage-main.hdeck-track > section.fd-magic,
 .fullpage-main.hdeck-track > section.hero-liquid,
+.fullpage-main.hdeck-track > section.hl-studio,
 .fullpage-main.hdeck-track > footer.ft-site {
   overflow-y: auto;
   overflow-x: hidden;
@@ -5940,6 +5941,23 @@ img.brand-logo-lg {
   .selected-work-nav-item:hover,
   .group:hover .selected-work-link-icon {
     transform: none;
+  }
+}
+
+/* Phone + tablet: stacked bento is taller than the panel. Scroll inside it. */
+@media (max-width: 1023px) {
+  .fullpage-main.hdeck-track > section.hl-studio {
+    align-items: stretch;
+    padding-bottom: calc(var(--pg-dock-gap) + 1.25rem);
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .fullpage-main.hdeck-track > section.hl-studio > .mx-auto {
+    flex: 0 0 auto;
+    height: auto;
+    max-height: none;
+    min-height: min-content;
   }
 }
 
